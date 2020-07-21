@@ -1,0 +1,2 @@
+include ':preferences'
+include ':app'

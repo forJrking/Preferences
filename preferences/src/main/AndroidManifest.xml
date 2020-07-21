@@ -1,0 +1,12 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.forjrking.preferences">
+
+    <application>
+<!-- 多进程的sp-->
+        <provider
+            android:name=".provide.sharedpreferenceimpl.MultiProcessSharedPreferences"
+            android:authorities="${applicationId}.MultiProcessSharedPreferences"
+            android:exported="true" />
+
+    </application>
+</manifest>
