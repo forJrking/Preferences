@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.preference.PreferenceManager
 import com.forjrking.preferences.kt.PreferenceHolder
 import com.forjrking.preferences.proxy.SpRetrofit
+import com.forjrking.preferences.serialize.GsonSerializer
+import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
@@ -14,7 +16,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         MMKV.initialize(this)
         PreferenceHolder.context = this.applicationContext
-//        PreferenceHolder.serializer = GsonSerializer()
+        PreferenceHolder.serializer = GsonSerializer(Gson())
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -60,11 +62,21 @@ class MainActivity : AppCompatActivity() {
             text.text = TestmmkvSP.testStr
         }
 
+        println(TestSP.game?.toString())
 
+        TestSP.game = Game().also {
+            it.numbeId = 1
+            it.path = "sadasdsada"
+            it.datas = mutableListOf()
+        }
+
+        println(TestSP.game?.toString())
 //        javaSP.coin = "212"
 //        val coin = javaSP.coin
 //        val firstShare = javaSP.isFirstShare(true)
 //        javaSP.setFirstShare(false)
+
+
 
     }
 }
