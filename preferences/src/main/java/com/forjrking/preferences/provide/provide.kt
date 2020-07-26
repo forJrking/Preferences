@@ -11,10 +11,7 @@ import com.forjrking.preferences.provide.sharedpreferenceimpl.SharedPreferencesH
  * @author: 岛主
  * @date: 2020/7/21 11:21
  * @version: 1.0.0
- */
-
-/***
- *生成支持多进程的mmkv
+ * 生成支持多进程的mmkv
  * @param name xml名称
  * @param cryptKey 加密密钥 mmkv加密密钥
  * @param isMMKV  是否使用mmkv

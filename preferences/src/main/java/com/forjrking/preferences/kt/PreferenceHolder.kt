@@ -36,11 +36,17 @@ open class PreferenceHolder(
     private var crypt: Crypt? = null
 
     init {
+        //必须是带秘钥设置的
         if (!isMMKV && !cryptKey.isNullOrEmpty()) {
+            //加密数据实例
             crypt = AesCrypt(cryptKey)
         }
     }
-
+    /**
+     * @param default 默认值
+     * @param key 自定义key
+     * @param caching 缓存开关
+     * */
     protected inline fun <reified T : Any> bindToPreferenceField(
         default: T,
         key: String? = null,
@@ -105,15 +111,23 @@ open class PreferenceHolder(
     companion object {
         var context: Context? = null
             get() {
-                if (field == null) {
+                return if (field == null) {
                     throw IllegalStateException("PreferenceHolder is not initialed")
+                } else {
+                    field
                 }
-                return field
             }
             set(value) {
                 field = value?.applicationContext
             }
 
         var serializer: Serializer? = null
+            get() {
+                return if (field == null) {
+                    throw ExceptionInInitializerError("serializer is null")
+                } else {
+                    field
+                }
+            }
     }
 }
