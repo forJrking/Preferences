@@ -1,4 +1,4 @@
-## PowerfulPreference[![](https://jitpack.io/v/forJrking/Preferences.svg)](https://jitpack.io/#forJrking/Preferences)
+## PowerfulPreference [![](https://jitpack.io/v/forJrking/Preferences.svg)](https://jitpack.io/#forJrking/Preferences)
 
 ### 简介
 
@@ -20,7 +20,7 @@ repositories {
 dependencies {
 	implementation 'com.google.code.gson:gson:2.8.5' //存储对象需要  非必须
 	implementation 'com.tencent:mmkv-static:1.2.1'	// mmkv  非必须
-	implementation 'com.github.forJrking:Preferences:1.0.0'	// mmkv  非必须
+	implementation 'com.github.forJrking:Preferences:1.0.0'	// 必须
 }
 
  //Application 中初始化MMKV
