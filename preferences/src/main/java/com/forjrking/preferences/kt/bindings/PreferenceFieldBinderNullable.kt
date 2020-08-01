@@ -36,7 +36,7 @@ internal open class PreferenceFieldBinderNullable<T : Any>(
         if (!thisRef.preferences.contains(key)) return null
         //缓存开启时候不用读取？
         if (caching && propertySet) return field
-        //读取sp也是内存 感觉意义不大  测试性能
+        //读取sp也是内存 感觉意义不大  需要测试性能
         val newValue = thisRef.preferences.getValue(clazz, type, key, crypt)
         field = newValue
         propertySet = true
