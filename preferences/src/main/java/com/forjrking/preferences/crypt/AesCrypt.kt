@@ -12,7 +12,7 @@ import javax.crypto.spec.SecretKeySpec
 /**
  * AES 实现的加解密工具  性能不够优秀建议使用C++
  * */
-class AesCrypt(private val psd: String) : Crypt {
+class AesCrypt(override val psd: String) : Crypt {
 
     private val AES_MODE = "AES/CBC/PKCS5Padding" // PKCS7Padding 性能竟然是前者2倍 搞不懂。。
     private val HASH_ALGORITHM = "SHA-256"
@@ -20,8 +20,8 @@ class AesCrypt(private val psd: String) : Crypt {
     private val CIPHER = "AES"
 
     private val IV_BYTES = byteArrayOf(
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+        0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+        0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x00
     )
 
     val key: SecretKeySpec by lazy { generateKey(psd) }
@@ -37,14 +37,13 @@ class AesCrypt(private val psd: String) : Crypt {
         UnsupportedEncodingException::class,
         IllegalArgumentException::class
     )
-    private fun generateKey(password: String = psd): SecretKeySpec {
+    private fun generateKey(password: String): SecretKeySpec {
         val digest = MessageDigest.getInstance(HASH_ALGORITHM)
         val bytes = password.toByteArray(charset(CHARSET))
         digest.update(bytes, 0, bytes.size)
         val key = digest.digest()
         return SecretKeySpec(key, CIPHER)
     }
-
 
     /**
      * Encrypt and encode message using 256-bit AES with key generated from password.
@@ -121,4 +120,5 @@ class AesCrypt(private val psd: String) : Crypt {
         cipher.init(Cipher.DECRYPT_MODE, key, ivSpec)
         return cipher.doFinal(decodedCipherText)
     }
+
 }

@@ -1,4 +1,4 @@
-package com.example.spholder;
+package com.example.spholder.bo;
 
 import java.util.List;
 

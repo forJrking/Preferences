@@ -1,5 +1,6 @@
 package com.example.spholder
 
+import com.example.spholder.bo.Game
 import com.forjrking.preferences.kt.PreferenceHolder
 
 /**

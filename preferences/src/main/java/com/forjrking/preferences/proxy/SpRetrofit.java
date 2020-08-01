@@ -7,18 +7,19 @@ import android.text.TextUtils;
 import com.forjrking.preferences.crypt.AesCrypt;
 import com.forjrking.preferences.crypt.Crypt;
 import com.forjrking.preferences.provide.ProvideKt;
+import com.forjrking.preferences.serialize.Serializer;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-
-import static com.forjrking.preferences.kt.bindings.PutValueExtKt.getSerializer;
 
 /**
  * 应用程序代理类
  * Created by rae on 2020-02-20.
  */
 public final class SpRetrofit {
+
+    public static Serializer serialize;
 
     private SpRetrofit() {
     }
@@ -117,7 +118,7 @@ public final class SpRetrofit {
                 editor.putLong(name, (long) arg);
             } else {
                 // 其他值默认使用Json字符串
-                String json = getSerializer().serialize(arg);
+                String json = serialize.serialize(arg);
                 if (mCrypt != null && !TextUtils.isEmpty(json)) {
                     json = mCrypt.encrypt(json);
                 }
@@ -155,7 +156,7 @@ public final class SpRetrofit {
                 if (mCrypt != null && !TextUtils.isEmpty(json)) {
                     json = mCrypt.decrypt(json);
                 }
-                return getSerializer().deserialize(json, type);
+                return serialize.deserialize(json, type);
             }
         }
     }

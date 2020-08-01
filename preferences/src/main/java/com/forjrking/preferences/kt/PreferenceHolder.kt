@@ -1,7 +1,9 @@
 package com.forjrking.preferences.kt
 
+import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import com.forjrking.preferences.crypt.AesCrypt
 import com.forjrking.preferences.crypt.Crypt
 import com.forjrking.preferences.kt.bindings.*
@@ -12,72 +14,66 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
 
 /***
  *SharedPreferences使用可以配合mmkv
- * @param name xml名称 this::class.java.simpleName
+ * @param name xml名称 this::class.java.simpleName 如果使用包名不同类字段相同会覆盖值
  * @param cryptKey 加密密钥  ｛原生sp多进程不支持加密  多进程本身数据不安全而且性能比较差综合考虑不加密｝
  * @param isMMKV  是否使用mmkv
  * @param isMultiProcess 是否使用多进程  建议mmkv搭配使用 sp性能很差
  */
 open class PreferenceHolder(
-    name: String? = null,
-    cryptKey: String? = null,
-    isMMKV: Boolean = false,
-    isMultiProcess: Boolean = false
+    name: String? = null, cryptKey: String? = null, isMMKV: Boolean = false, isMultiProcess: Boolean = false
 ) {
 
     open val preferences: SharedPreferences by lazy {
-        context!!.createSharedPreferences(name, cryptKey, isMultiProcess, isMMKV)
+        if (!isInitialized()) {
+            throw IllegalStateException("PreferenceHolder is not initialed")
+        }
+        context.createSharedPreferences(name ?: this::class.qualifiedName, cryptKey, isMultiProcess, isMMKV)
     }
-
-    private var crypt: Crypt? = null
+    /** DES: 减小edit实例化时候集合多次创建开销 */
+    internal val edit : SharedPreferences.Editor by lazy { preferences.edit() }
+    
+    /** DES: 加密实现 */
+    var crypt: Crypt? = null
 
     init {
-        //必须是带秘钥设置的
+        // 加密数据实例
         if (!isMMKV && !cryptKey.isNullOrEmpty()) {
-            //加密数据实例
             crypt = AesCrypt(cryptKey)
         }
     }
+
     /**
      * @param default 默认值
      * @param key 自定义key
      * @param caching 缓存开关
      * */
     protected inline fun <reified T : Any> bindToPreferenceField(
-        default: T,
-        key: String? = null,
-        caching: Boolean = true
+        default: T, key: String? = null, caching: Boolean = true
     ): ReadWriteProperty<PreferenceHolder, T> =
         bindToPreferenceField(T::class, object : TypeToken<T>() {}.type, default, key, caching)
 
     protected inline fun <reified T : Any> bindToPreferenceFieldNullable(
-        key: String? = null,
-        caching: Boolean = true
+        key: String? = null, caching: Boolean = true
     ): ReadWriteProperty<PreferenceHolder, T?> =
         bindToPreferenceFieldNullable(T::class, object : TypeToken<T>() {}.type, key, caching)
 
     protected fun <T : Any> bindToPreferenceField(
-        clazz: KClass<T>,
-        type: Type,
-        default: T,
-        key: String?,
-        caching: Boolean = true
+        clazz: KClass<T>, type: Type,
+        default: T, key: String?, caching: Boolean = true
     ): ReadWriteProperty<PreferenceHolder, T> =
-        if (caching) PreferenceFieldBinderCaching(clazz, type, default, key, crypt)
-        else PreferenceFieldBinder(clazz, type, default, key, crypt)
+        PreferenceFieldBinder(clazz, type, default, key, caching, crypt)
 
     protected fun <T : Any> bindToPreferenceFieldNullable(
-        clazz: KClass<T>,
-        type: Type,
-        key: String?,
-        caching: Boolean = true
+        clazz: KClass<T>, type: Type,
+        key: String?, caching: Boolean = true
     ): ReadWriteProperty<PreferenceHolder, T?> =
-        if (caching) PreferenceFieldBinderNullableCaching(clazz, type, key, crypt)
-        else PreferenceFieldBinderNullable(clazz, type, key, crypt)
+        PreferenceFieldBinderNullable(clazz, type, key, caching, crypt)
 
     /**
      *  Function used to clear all SharedPreference and PreferenceHolder data. Useful especially
@@ -90,6 +86,7 @@ open class PreferenceHolder(
         }
     }
 
+    /** DES: 清理缓存字段 */
     fun clearCache() {
         forEachDelegate { delegate, _ ->
             delegate.clearCache()
@@ -109,25 +106,16 @@ open class PreferenceHolder(
     }
 
     companion object {
-        var context: Context? = null
-            get() {
-                return if (field == null) {
-                    throw IllegalStateException("PreferenceHolder is not initialed")
-                } else {
-                    field
-                }
-            }
-            set(value) {
-                field = value?.applicationContext
-            }
-
+        /** DES: 为了防止内存泄漏 */
+        lateinit var context: Application
+        /** DES: isInitialized 放到伴生对象外面会报错。。。 */
+        fun isInitialized(): Boolean = ::context.isInitialized
+        /** DES: 加解密其他实现 反射获取*/
+//        var cryptClazz: KClass<Crypt>? = null
+        /** DES: 序列化接口 */
         var serializer: Serializer? = null
             get() {
-                return if (field == null) {
-                    throw ExceptionInInitializerError("serializer is null")
-                } else {
-                    field
-                }
+                return field ?: throw ExceptionInInitializerError("serializer is null")
             }
     }
 }
