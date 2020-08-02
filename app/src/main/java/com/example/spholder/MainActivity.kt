@@ -1,13 +1,16 @@
 package com.example.spholder
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import com.example.spholder.bo.Game
-import com.example.spholder.daily.ObjectTest
-import com.example.spholder.daily.util.DataUtil
-import com.example.spholder.daily.util.toTime
+import com.example.spholder.daily.TestActivity
+import com.example.spholder.test.TestCryptSP
+import com.example.spholder.test.TestMultiSP
+import com.example.spholder.test.TestSP
+import com.example.spholder.test.TestmmkvSP
 import com.forjrking.preferences.kt.PreferenceHolder
-import com.forjrking.preferences.proxy.SpRetrofit
 import com.forjrking.preferences.serialize.GsonSerializer
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
@@ -23,50 +26,82 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         btn1.setOnClickListener {
+            TestSP.clear()
+            TestSP.clearCache()
+            TestSP.testStr.log()
+            TestSP.testLong.toString().log()
+            TestSP.game.toString().log()
+            ////////////////////////////普通测试///////////////////////////
+            TestSP.testStr = "testStr"
+            TestSP.testLong = 100232L
+            ////////////////////////////序列化测试///////////////////////////
+            TestSP.game = Game(1,"sadasdsada",mutableListOf())
 
-            val s1 = System.nanoTime()
-            repeat(1000) {
-                TestSP.testStr = "BBBXXEEEE$it"
-            }
-            val s2 = System.nanoTime()
-            println("set Time: ${TimeUnit.NANOSECONDS.toMillis(s2 - s1)}")
 
-            repeat(1000) {
-                val s = TestSP.testStr
-            }
-            val s3 = System.nanoTime()
-            println("get Time: ${TimeUnit.NANOSECONDS.toMillis(s3 - s2)}")
+            TestSP.testStr.log()
+            TestSP.testLong.toString().log()
+            TestSP.game.toString().log()
 
-            text.text = TestSP.testStr
+            //加密测试
+
+            TestCryptSP.testStr.log()
+            TestCryptSP.testLong.toString().log()
+            TestCryptSP.game.toString().log()
+            ////////////////////////////普通测试///////////////////////////
+            TestCryptSP.testStr = "testStr"
+            TestCryptSP.testLong = 100232L
+            ////////////////////////////序列化测试///////////////////////////
+            TestCryptSP.game = Game(1,"sadasdsada",mutableListOf())
+
+            TestCryptSP.testStr.log()
+            TestCryptSP.testLong.toString().log()
+            TestCryptSP.game.toString().log()
+
         }
 
 
 
         btn2.setOnClickListener {
-            val items = ObjectTest.taskDailyReward
-            ObjectTest.taskDailyReward = items
+            TestmmkvSP.testStr.log()
+            TestmmkvSP.coin.toString().log()
 
-            items.forEach {
-                //今天要签到的数据
-                it.isClmiaed = true
-            }
-            ObjectTest.taskDailyReward = items
+            TestmmkvSP.testStr = "multi Process test"
+            TestmmkvSP.coin = 2000323
+            TestmmkvSP.testStr.log()
+            TestmmkvSP.coin.toString().log()
         }
 
-        println(TestSP.game?.toString())
 
-        TestSP.game = Game().also {
-            it.numbeId = 1
-            it.path = "sadasdsada"
-            it.datas = mutableListOf()
+        btn3.setOnClickListener {
+            TestmmkvSP.testStr = "multi Process jump"
+            TestmmkvSP.coin = 2998888
+
+            TestMultiSP.testStr = "multi testStr"
+            TestMultiSP.testLong = 199999L
+            ////////////////////////////序列化测试///////////////////////////
+            TestMultiSP.game = Game(91,"multistring",mutableListOf())
+
+            startActivity(Intent(this@MainActivity,TestActivity::class.java))
         }
 
-        println(TestSP.game?.toString())
-//        javaSP.coin = "212"
-//        val coin = javaSP.coin
-//        val firstShare = javaSP.isFirstShare(true)
-//        javaSP.setFirstShare(false)
 
+        /////////////////////////////性能测试///////////////////////
+        val s1 = System.nanoTime()
+        repeat(1000) {
+            TestSP.testStr = "BBBXXEEEE$it"
+        }
+        val s2 = System.nanoTime()
+        println("set Time: ${TimeUnit.NANOSECONDS.toMillis(s2 - s1)}")
 
+        repeat(1000) {
+            val s = TestSP.testStr
+        }
+        val s3 = System.nanoTime()
+        println("get Time: ${TimeUnit.NANOSECONDS.toMillis(s3 - s2)}")
+
+        text.text = TestSP.testStr
     }
+}
+fun String.log(){
+    Log.d("MainActivity",this)
 }

@@ -1,4 +1,4 @@
-package com.example.spholder
+package com.example.spholder.test
 
 import com.forjrking.preferences.kt.PreferenceHolder
 
@@ -8,7 +8,7 @@ import com.forjrking.preferences.kt.PreferenceHolder
  * @date: 2020/7/2 10:48
  * @version: 1.0.0
  */
-object TestmmkvSP : PreferenceHolder(null,"12345678",true, false) {
+object TestmmkvSP : PreferenceHolder(null,"12345678",true, true) {
 
     var testStr: String by bindToPreferenceField("")
 

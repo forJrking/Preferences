@@ -39,7 +39,7 @@ open class PreferenceHolder(
     internal val edit : SharedPreferences.Editor by lazy { preferences.edit() }
     
     /** DES: 加密实现 */
-    var crypt: Crypt? = null
+    private var crypt: Crypt? = null
 
     init {
         // 加密数据实例

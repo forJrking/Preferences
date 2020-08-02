@@ -3,6 +3,10 @@ package com.example.spholder.daily
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.spholder.R
+import com.example.spholder.log
+import com.example.spholder.test.TestCryptSP
+import com.example.spholder.test.TestMultiSP
+import com.example.spholder.test.TestmmkvSP
 import com.forjrking.preferences.kt.PreferenceHolder
 import com.forjrking.preferences.serialize.GsonSerializer
 import com.google.gson.Gson
@@ -24,5 +28,12 @@ class TestActivity : AppCompatActivity() {
         controller.setTip(task1_tip) {
             controller.setView(task1_ll)
         }
+
+        TestmmkvSP.testStr.log()
+        TestmmkvSP.coin.toString().log()
+
+        TestMultiSP.testStr.log()
+        TestMultiSP.testLong.toString().log()
+        TestMultiSP.game.toString().log()
     }
 }
