@@ -78,7 +78,7 @@ TestSP.testStr = "AX${Random().nextInt(20)}"
 TestSP.coin = 100
 ```
 
-3. Java 支持问题
+4. Java 支持问题
 
 这个比较简单由于委托方法仅仅支持kt，所以先用kt书写操作类，然后在java中使用`getXXX()、setXXX()`来使用，一样非常牛X
 
