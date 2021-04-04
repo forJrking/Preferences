@@ -1,20 +1,20 @@
 package com.forjrking.preferences.kt
 
 import android.app.Application
-import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import com.forjrking.preferences.crypt.AesCrypt
 import com.forjrking.preferences.crypt.Crypt
 import com.forjrking.preferences.kt.bindings.*
-import com.forjrking.preferences.serialize.Serializer
 import com.forjrking.preferences.provide.createSharedPreferences
+import com.forjrking.preferences.serialize.Serializer
 import java.lang.reflect.Type
+import java.util.*
+import kotlin.collections.HashMap
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
 
@@ -26,18 +26,27 @@ import kotlin.reflect.jvm.isAccessible
  * @param isMultiProcess 是否使用多进程  建议mmkv搭配使用 sp性能很差
  */
 open class PreferenceHolder(
-    name: String? = null, cryptKey: String? = null, isMMKV: Boolean = false, isMultiProcess: Boolean = false
+    private val name: String? = null,
+    private val cryptKey: String? = null,
+    private val isMMKV: Boolean = false,
+    private val isMultiProcess: Boolean = false
 ) {
 
-    open val preferences: SharedPreferences by lazy {
+    val preferences: SharedPreferences by lazy {
         if (!isInitialized()) {
             throw IllegalStateException("PreferenceHolder is not initialed")
         }
-        context.createSharedPreferences(name ?: this::class.qualifiedName, cryptKey, isMultiProcess, isMMKV)
+        context.createSharedPreferences(
+            name ?: this::class.qualifiedName,
+            cryptKey,
+            isMultiProcess,
+            isMMKV
+        )
     }
+
     /** DES: 减小edit实例化时候集合多次创建开销 */
-    internal val edit : SharedPreferences.Editor by lazy { preferences.edit() }
-    
+    internal val edit: SharedPreferences.Editor by lazy { preferences.edit() }
+
     /** DES: 加密实现 */
     private var crypt: Crypt? = null
 
@@ -93,6 +102,28 @@ open class PreferenceHolder(
         }
     }
 
+    /**
+     * 获取所有key-value 默认根据配置是否加解密决定
+     * @unRaw 熟肉 true  表示获取到真实数据 即解密后的 key-value
+     *        生肉 false 表示获取到的数据是sp xml真实数据可能会有加密数据  mmkv默认必须解密 此功能无效
+     * */
+    fun getAll(unRaw: Boolean = crypt != null): MutableMap<String, *>? =
+        if (this.isMMKV || unRaw) {
+            //MMKV不支持getAll 反射遍历所有属性
+            HashMap<String, Any?>().also {
+                val properties = this::class.declaredMemberProperties
+                    .filterIsInstance<KProperty1<PreferenceHolder, *>>()
+                for (p in properties) {
+                    val prevAccessible = p.isAccessible
+                    if (!prevAccessible) p.isAccessible = true
+                    it[p.name] = p.get(this)
+                    p.isAccessible = prevAccessible
+                }
+            }
+        } else {
+            preferences.all
+        }
+
     private fun forEachDelegate(f: (Clearable, KProperty<*>) -> Unit) {
         val properties = this::class.declaredMemberProperties
             .filterIsInstance<KProperty1<SharedPreferences, *>>()
@@ -108,10 +139,10 @@ open class PreferenceHolder(
     companion object {
         /** DES: 为了防止内存泄漏 */
         lateinit var context: Application
+
         /** DES: isInitialized 放到伴生对象外面会报错。。。 */
         fun isInitialized(): Boolean = ::context.isInitialized
-        /** DES: 加解密其他实现 反射获取*/
-//        var cryptClazz: KClass<Crypt>? = null
+
         /** DES: 序列化接口 */
         var serializer: Serializer? = null
             get() {

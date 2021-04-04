@@ -57,6 +57,9 @@ class MainActivity : AppCompatActivity() {
             TestCryptSP.testLong.toString().log()
             TestCryptSP.game.toString().log()
 
+            TestCryptSP.getAll()?.forEach {
+                Log.d("PreferenceHolder", "TestCryptSP ->name:${it.key} value:${it.value}")
+            }
         }
 
 
@@ -80,7 +83,9 @@ class MainActivity : AppCompatActivity() {
             TestMultiSP.testLong = 199999L
             ////////////////////////////序列化测试///////////////////////////
             TestMultiSP.game = Game(91,"multistring",mutableListOf())
-
+            TestMultiSP.getAll()?.forEach {
+                Log.d("PreferenceHolder", "TestMultiSP ->name:${it.key} value:${it.value}")
+            }
             startActivity(Intent(this@MainActivity,TestActivity::class.java))
         }
 

@@ -2,7 +2,9 @@ package com.example.spholder.daily
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import com.example.spholder.R
+import com.example.spholder.bo.Game
 import com.example.spholder.log
 import com.example.spholder.test.TestCryptSP
 import com.example.spholder.test.TestMultiSP
@@ -31,9 +33,13 @@ class TestActivity : AppCompatActivity() {
 
         TestmmkvSP.testStr.log()
         TestmmkvSP.coin.toString().log()
+        TestmmkvSP.game = Game(1,"sadasdsada",mutableListOf())
+        TestmmkvSP.getAll()?.forEach {
+            Log.d("PreferenceHolder", "name:${it.key} value:${it.value}")
+        }
 
-        TestMultiSP.testStr.log()
-        TestMultiSP.testLong.toString().log()
-        TestMultiSP.game.toString().log()
+//        TestMultiSP.testStr.log()
+//        TestMultiSP.testLong.toString().log()
+//        TestMultiSP.game.toString().log()
     }
 }

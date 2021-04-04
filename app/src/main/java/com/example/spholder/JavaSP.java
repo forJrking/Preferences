@@ -1,6 +1,6 @@
 package com.example.spholder;
 
-import com.forjrking.preferences.proxy.SpConfig;
+import com.example.spholder.proxy.SpConfig;
 
 /**
  * @description:

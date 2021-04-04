@@ -1,4 +1,4 @@
-package com.forjrking.preferences.proxy;
+package com.example.spholder.proxy;
 
 import android.content.Context;
 import android.content.SharedPreferences;
