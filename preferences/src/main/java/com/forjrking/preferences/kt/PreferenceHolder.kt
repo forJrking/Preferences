@@ -2,7 +2,6 @@ package com.forjrking.preferences.kt
 
 import android.app.Application
 import android.content.SharedPreferences
-import android.util.Log
 import com.forjrking.preferences.crypt.AesCrypt
 import com.forjrking.preferences.crypt.Crypt
 import com.forjrking.preferences.kt.bindings.*
@@ -103,26 +102,29 @@ open class PreferenceHolder(
     }
 
     /**
-     * 获取所有key-value 默认根据配置是否加解密决定
+     * 获取所有key-value 默认根据配置是否加解密决定 mmkv默认必须解密 此功能无效
      * @unRaw 熟肉 true  表示获取到真实数据 即解密后的 key-value
-     *        生肉 false 表示获取到的数据是sp xml真实数据可能会有加密数据  mmkv默认必须解密 此功能无效
+     *        生肉 false 表示获取到的数据是sp xml真实数据可能会有加密数据
      * */
-    fun getAll(unRaw: Boolean = crypt != null): MutableMap<String, *>? =
-        if (this.isMMKV || unRaw) {
-            //MMKV不支持getAll 反射遍历所有属性
+    fun getAll(unRaw: Boolean = crypt != null): MutableMap<String, *>? {
+        val receiver = this
+        return if (receiver.isMMKV || unRaw) {
             HashMap<String, Any?>().also {
-                val properties = this::class.declaredMemberProperties
+                val properties = receiver::class.declaredMemberProperties
                     .filterIsInstance<KProperty1<PreferenceHolder, *>>()
                 for (p in properties) {
                     val prevAccessible = p.isAccessible
                     if (!prevAccessible) p.isAccessible = true
-                    it[p.name] = p.get(this)
+                    p.getDelegate(receiver)?.let { _ ->
+                        it[p.name] = p.get(receiver)
+                    }
                     p.isAccessible = prevAccessible
                 }
             }
         } else {
             preferences.all
         }
+    }
 
     private fun forEachDelegate(f: (Clearable, KProperty<*>) -> Unit) {
         val properties = this::class.declaredMemberProperties

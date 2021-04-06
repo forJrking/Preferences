@@ -26,21 +26,21 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         btn1.setOnClickListener {
-            TestSP.clear()
-            TestSP.clearCache()
-            TestSP.testStr.log()
-            TestSP.testLong.toString().log()
-            TestSP.game.toString().log()
-            ////////////////////////////普通测试///////////////////////////
-            TestSP.testStr = "testStr"
-            TestSP.testLong = 100232L
-            ////////////////////////////序列化测试///////////////////////////
-            TestSP.game = Game(1,"sadasdsada",mutableListOf())
-
-
-            TestSP.testStr.log()
-            TestSP.testLong.toString().log()
-            TestSP.game.toString().log()
+//            TestSP.clear()
+//            TestSP.clearCache()
+//            TestSP.testStr.log()
+//            TestSP.testLong.toString().log()
+//            TestSP.game.toString().log()
+//            ////////////////////////////普通测试///////////////////////////
+//            TestSP.testStr = "testStr"
+//            TestSP.testLong = 100232L
+//            ////////////////////////////序列化测试///////////////////////////
+//            TestSP.game = Game(1,"sadasdsada",mutableListOf())
+//
+//
+//            TestSP.testStr.log()
+//            TestSP.testLong.toString().log()
+//            TestSP.game.toString().log()
 
             //加密测试
 
@@ -49,16 +49,22 @@ class MainActivity : AppCompatActivity() {
             TestCryptSP.game.toString().log()
             ////////////////////////////普通测试///////////////////////////
             TestCryptSP.testStr = "testStr"
+            TestCryptSP._testStr2 = "_testStr2222"
             TestCryptSP.testLong = 100232L
             ////////////////////////////序列化测试///////////////////////////
             TestCryptSP.game = Game(1,"sadasdsada",mutableListOf())
 
             TestCryptSP.testStr.log()
+            TestCryptSP._testStr2.log()
             TestCryptSP.testLong.toString().log()
             TestCryptSP.game.toString().log()
 
             TestCryptSP.getAll()?.forEach {
-                Log.d("PreferenceHolder", "TestCryptSP ->name:${it.key} value:${it.value}")
+                Log.d("MainActivity", "TestCryptSP ->name:${it.key} value:${it.value}")
+            }
+            TestCryptSP.clear()
+            TestCryptSP.getAll()?.forEach {
+                Log.d("MainActivity", "TestCryptSP ->name:${it.key} value:${it.value}")
             }
         }
 

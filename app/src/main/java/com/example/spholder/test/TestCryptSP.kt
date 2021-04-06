@@ -13,8 +13,13 @@ object TestCryptSP : PreferenceHolder(null, "Asdshajfsjk23432432") {
 
     var testStr: String by bindToPreferenceField("")
 
-    var testLong: Long by bindToPreferenceField(0L,"Number")
+    var testLong: Long by bindToPreferenceField(0L, "Number")
 
     var game: Game? by bindToPreferenceFieldNullable()
 
+    var aa1: String = "xxxxxx"
+
+    var _aa2: String = "xxxxxx2"
+
+    var _testStr2: String by bindToPreferenceField("_testStr2")
 }
