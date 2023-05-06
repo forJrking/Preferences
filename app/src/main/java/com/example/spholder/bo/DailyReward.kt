@@ -1,4 +1,4 @@
-package com.example.spholder.daily
+package com.example.spholder.bo
 
 /**
  * @description:

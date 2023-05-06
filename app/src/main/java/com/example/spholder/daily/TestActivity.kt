@@ -1,18 +1,16 @@
 package com.example.spholder.daily
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import com.example.spholder.R
 import com.example.spholder.bo.Game
+import com.example.spholder.databinding.ActivityTestBinding
 import com.example.spholder.log
-import com.example.spholder.test.TestCryptSP
-import com.example.spholder.test.TestMultiSP
 import com.example.spholder.test.TestmmkvSP
 import com.forjrking.preferences.kt.PreferenceHolder
 import com.forjrking.preferences.serialize.GsonSerializer
 import com.google.gson.Gson
-import kotlinx.android.synthetic.main.activity_test.*
 
 
 class TestActivity : AppCompatActivity() {
@@ -24,11 +22,12 @@ class TestActivity : AppCompatActivity() {
         PreferenceHolder.context = this.application
         PreferenceHolder.serializer = GsonSerializer(Gson())
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_test)
-        controller.setView(task1_ll)
+        val testBinding = ActivityTestBinding.inflate(layoutInflater)
+        setContentView(testBinding.root)
+        controller.setView(testBinding.task1Ll)
         //设置下面的tip
-        controller.setTip(task1_tip) {
-            controller.setView(task1_ll)
+        controller.setTip(testBinding.task1Tip) {
+            controller.setView(testBinding.task1Ll)
         }
 
         TestmmkvSP.testStr.log()

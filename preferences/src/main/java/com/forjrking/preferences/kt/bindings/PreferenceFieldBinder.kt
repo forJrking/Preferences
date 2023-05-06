@@ -4,7 +4,6 @@ import android.util.Log
 import com.forjrking.preferences.crypt.Crypt
 import com.forjrking.preferences.kt.PreferenceHolder
 import java.lang.reflect.Type
-import java.util.Map
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -33,7 +32,7 @@ internal class PreferenceFieldBinder<T : Any>(
 
     override fun setValue(thisRef: PreferenceHolder, property: KProperty<*>, value: T) {
         if (caching) {
-            if (value == field && !(value is Collection<*> || value is Map<*, *> || value is Array<*>)) {
+            if (value == field && isOutsideOfCache(value)) {
                 Log.d("PreferenceHolder", "value is the same as the cache")
                 return
             }

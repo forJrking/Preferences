@@ -18,8 +18,6 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Bundle;
 
-import com.forjrking.preferences.BuildConfig;
-
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -61,7 +59,7 @@ import java.util.Set;
  */
 public class MultiProcessSharedPreferences extends ContentProvider implements SharedPreferences {
     private static final String TAG = "MicroMsg.MultiProcessSharedPreferences";
-    public static final boolean DEBUG = BuildConfig.DEBUG;
+    public static final boolean DEBUG = false;
     private Context mContext;
     private String mName;
     private int mMode;

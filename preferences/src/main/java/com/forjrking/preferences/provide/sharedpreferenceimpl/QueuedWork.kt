@@ -1,124 +1,44 @@
-package com.forjrking.preferences.provide.sharedpreferenceimpl;
+package com.forjrking.preferences.provide.sharedpreferenceimpl
 
-import android.os.Build;
-import android.os.Handler;
+import java.util.*
+import java.util.concurrent.ConcurrentLinkedQueue
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
+/**
+ * 在8.0以下代理
+ * The set of Runnables that will finish or wait on any async activities started by the application.
+ * private static final ConcurrentLinkedQueue<Runnable> sPendingWorkFinishers = new ConcurrentLinkedQueue<Runnable>();
+ */
 
+internal class ConcurrentLinkedQueueProxy(private val sPendingWorkFinishers: ConcurrentLinkedQueue<Runnable>) :
+    ConcurrentLinkedQueue<Runnable>() {
 
-final class QueuedWork {
+    override fun add(element: Runnable?): Boolean = sPendingWorkFinishers.add(element)
 
-    // The set of Runnables that will finish or wait on any async
-    // activities started by the application.
-    private static final ConcurrentLinkedQueue<Runnable> sPendingWorkFinishers =
-            new ConcurrentLinkedQueue<Runnable>();
+    override fun remove(element: Runnable?): Boolean = sPendingWorkFinishers.remove(element)
 
-    private static volatile boolean mCustomWaitToFinish;
+    override fun isEmpty(): Boolean = true
 
-    private static Class<?> mClass;
-    private static Method mAddMethod;
-    private static Method mRemoveMethod;
-    private static ExecutorService mExecutorService;
-    private static Handler mHandler;
+    /**
+     * 代理的poll()方法，永远返回空，这样UI线程就可以避免被阻塞，继续执行了
+     */
+    override fun poll(): Runnable? = null
+}
 
-    public static boolean init() {
-        if (Build.VERSION.SDK_INT >= 28) {
-            //android p 以后禁止反射 QueuedWork.getHandler 接口，所以直接使用系统的sp实现
-            return false;
-        }
+/**
+ * 在8.0以上apply()中QueuedWork.addFinisher(awaitCommit), 需要代理的是LinkedList，如下：
+ * # private static final LinkedList<Runnable> sFinishers = new LinkedList<>()
+ */
+internal class LinkedListProxy(private val sFinishers: LinkedList<Runnable>) :
+    LinkedList<Runnable>() {
 
-        try {
-            mClass = Class.forName("android.app.QueuedWork");
-            if (Build.VERSION.SDK_INT >= 26) {
-                try {
-                    mAddMethod = mClass.getMethod("addFinisher", Runnable.class);
-                    mRemoveMethod = mClass.getMethod("removeFinisher", Runnable.class);
-                    Method method = mClass.getDeclaredMethod("getHandler", new Class[]{});
-                    method.setAccessible(true);
-                    mHandler = (Handler) method.invoke(null, new Object[]{});
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+    override fun add(element: Runnable): Boolean = sFinishers.add(element)
 
-            if (mAddMethod == null || mRemoveMethod == null || mHandler == null) {
-                mAddMethod = mClass.getMethod("add", Runnable.class);
-                mRemoveMethod = mClass.getMethod("remove", Runnable.class);
+    override fun remove(element: Runnable): Boolean = sFinishers.remove(element)
 
-                Method method = mClass.getMethod("singleThreadExecutor", new Class[]{});
-                mExecutorService = (ExecutorService) method.invoke(null, new Object[]{});
-            }
-            return true;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
+    override fun isEmpty(): Boolean = true
 
-        return false;
-    }
-
-    private static void invokeClassMethod(Method method, Object arg) {
-        try {
-            method.invoke(null, arg);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void add(Runnable finisher) {
-        if (mCustomWaitToFinish) {
-            sPendingWorkFinishers.add(finisher);
-        } else {
-            invokeClassMethod(mAddMethod, finisher);
-        }
-    }
-
-    public static void remove(Runnable finisher) {
-        boolean success = mCustomWaitToFinish && sPendingWorkFinishers.remove(finisher);
-        if (!success) {
-            invokeClassMethod(mRemoveMethod, finisher);
-        }
-    }
-
-    public static void postRunnable(Runnable runnable) {
-        if (mHandler != null) {
-            mHandler.post(runnable);
-        }
-    }
-
-    public static ExecutorService singleThreadExecutor() {
-        return mExecutorService;
-    }
-
-    public static void setCustomWaitToFinish(boolean enable) {
-        if (mCustomWaitToFinish != enable) {
-            mCustomWaitToFinish = enable;
-            if (!enable) {
-                waitToFinish();
-            }
-        }
-    }
-
-    public static void waitToFinish() {
-        Runnable toFinish;
-        while ((toFinish = sPendingWorkFinishers.poll()) != null) {
-            toFinish.run();
-        }
-    }
+    /**
+     * 代理的poll()方法，永远返回空，这样UI线程就可以避免被阻塞，继续执行了
+     */
+    override fun poll(): Runnable? = null
 }

@@ -1,5 +1,6 @@
-package com.example.spholder.daily
+package com.example.spholder.test
 
+import com.example.spholder.bo.DailyReward
 import com.example.spholder.bo.Time
 import com.example.spholder.daily.util.DataUtil
 import com.forjrking.preferences.kt.PreferenceHolder
@@ -17,12 +18,12 @@ object ObjectTest : PreferenceHolder(null, null, false) {
     var tempStr: String by bindToPreferenceField("0","temp_${day()}")
 
 
-    fun day(times: Long = System.currentTimeMillis()): String {
+    private fun day(times: Long = System.currentTimeMillis()): String {
         val df = SimpleDateFormat("yyyyMMdd", Locale.US)
         return df.format(times)
     }
 
-    val default: MutableList<Time> = mutableListOf<Time>().apply {
+    private val default: MutableList<Time> = mutableListOf<Time>().apply {
         add(Time(1, 0L))
         add(Time(2, 0L))
     }

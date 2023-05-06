@@ -1,7 +1,5 @@
 package com.example.spholder.daily
 
-import android.app.Dialog
-import android.content.DialogInterface
 import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
@@ -10,13 +8,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
 import com.example.spholder.R
+import com.example.spholder.bo.DailyReward
 import com.example.spholder.daily.util.DataUtil
 import com.example.spholder.daily.util.toTime
+import com.example.spholder.test.ObjectTest
 
 /**
  * @description:
@@ -40,7 +37,7 @@ class TaskOneController(val activity: AppCompatActivity) : LifecycleObserver {
         items = getData()
         val today = DataUtil.day()
         items!!.forEachIndexed { index, element ->
-            val child = View.inflate(view.getContext(), R.layout.task_item_one, null)
+            val child = View.inflate(view.context, R.layout.task_item_one, null)
             val iv = child.findViewById<ImageView>(R.id.iv)
             val line = child.findViewById<View>(R.id.line)
             val textDay = child.findViewById<TextView>(R.id.tvday)

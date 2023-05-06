@@ -1,6 +1,4 @@
-package com.example.spholder;
-
-import com.example.spholder.proxy.SpConfig;
+package com.example.spholder.proxy;
 
 /**
  * @description:

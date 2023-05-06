@@ -1,11 +1,13 @@
 package com.example.spholder
 
+import android.annotation.SuppressLint
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import com.example.spholder.bo.Game
 import com.example.spholder.daily.TestActivity
+import com.example.spholder.databinding.ActivityMainBinding
 import com.example.spholder.test.TestCryptSP
 import com.example.spholder.test.TestMultiSP
 import com.example.spholder.test.TestSP
@@ -14,8 +16,7 @@ import com.forjrking.preferences.kt.PreferenceHolder
 import com.forjrking.preferences.serialize.GsonSerializer
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
-import kotlinx.android.synthetic.main.activity_main.*
-import java.util.concurrent.TimeUnit
+import kotlin.system.measureTimeMillis
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,9 +24,10 @@ class MainActivity : AppCompatActivity() {
         PreferenceHolder.context = this.application
         PreferenceHolder.serializer = GsonSerializer(Gson())
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        val mainBinding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(mainBinding.root)
 
-        btn1.setOnClickListener {
+        mainBinding.btn1.setOnClickListener {
 //            TestSP.clear()
 //            TestSP.clearCache()
 //            TestSP.testStr.log()
@@ -52,7 +54,7 @@ class MainActivity : AppCompatActivity() {
             TestCryptSP._testStr2 = "_testStr2222"
             TestCryptSP.testLong = 100232L
             ////////////////////////////序列化测试///////////////////////////
-            TestCryptSP.game = Game(1,"sadasdsada",mutableListOf())
+            TestCryptSP.game = Game(1, "sadasdsada", mutableListOf())
 
             TestCryptSP.testStr.log()
             TestCryptSP._testStr2.log()
@@ -70,7 +72,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        btn2.setOnClickListener {
+        mainBinding.btn2.setOnClickListener {
             TestmmkvSP.testStr.log()
             TestmmkvSP.coin.toString().log()
 
@@ -81,38 +83,42 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        btn3.setOnClickListener {
+        mainBinding.btn3.setOnClickListener {
             TestmmkvSP.testStr = "multi Process jump"
             TestmmkvSP.coin = 2998888
 
             TestMultiSP.testStr = "multi testStr"
             TestMultiSP.testLong = 199999L
             ////////////////////////////序列化测试///////////////////////////
-            TestMultiSP.game = Game(91,"multistring",mutableListOf())
+            TestMultiSP.game = Game(91, "multistring", mutableListOf())
             TestMultiSP.getAll()?.forEach {
                 Log.d("PreferenceHolder", "TestMultiSP ->name:${it.key} value:${it.value}")
             }
-            startActivity(Intent(this@MainActivity,TestActivity::class.java))
+            startActivity(Intent(this@MainActivity, TestActivity::class.java))
         }
 
 
         /////////////////////////////性能测试///////////////////////
-        val s1 = System.nanoTime()
-        repeat(1000) {
-            TestSP.testStr = "BBBXXEEEE$it"
+        val writeTimeMillis = measureTimeMillis {
+            repeat(1000) {
+                TestSP.testStr = "BBBXXEEEE$it"
+            }
         }
-        val s2 = System.nanoTime()
-        println("set Time: ${TimeUnit.NANOSECONDS.toMillis(s2 - s1)}")
+        println("writeTimeMillis: $writeTimeMillis")
 
-        repeat(1000) {
-            val s = TestSP.testStr
+        val readTimeMillis = measureTimeMillis {
+            repeat(1000) {
+                val sp = TestSP.testStr
+                val temp = sp
+            }
         }
-        val s3 = System.nanoTime()
-        println("get Time: ${TimeUnit.NANOSECONDS.toMillis(s3 - s2)}")
+        println("readTimeMillis: $readTimeMillis")
 
-        text.text = TestSP.testStr
+        mainBinding.text.text =
+            "writeTimeMillis: $writeTimeMillis \nreadTimeMillis: $readTimeMillis"
     }
 }
-fun String.log(){
-    Log.d("MainActivity",this)
+
+fun String.log() {
+    Log.d("MainActivity", this)
 }

@@ -1,23 +1,27 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-//apply plugin: 'kotlin-android-extensions'
-apply plugin: 'com.github.dcendents.android-maven'
-
-group='com.github.forjrking'
-version = '1.0.0'
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'maven-publish'
+}
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "30.0.0"
+    namespace 'com.forjrking.preferences'
+    compileSdk libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 29
+        minSdkVersion libs.versions.minSdk.get().toInteger()
+        targetSdkVersion libs.versions.targetSdk.get().toInteger()
         versionCode 1
         versionName "1.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 
     buildTypes {
@@ -30,13 +34,36 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    compileOnly 'com.google.code.gson:gson:2.8.5'
-    compileOnly 'com.tencent:mmkv-static:1.2.1'
-
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-
+    implementation libs.kotlin.reflect
+    compileOnly libs.mmkv
+    compileOnly libs.gson
+    testImplementation libs.junit4
 }
+
+//// Because the components are created only during the afterEvaluate phase, you must
+//// configure your publications using the afterEvaluate() lifecycle method.
+//afterEvaluate {
+//    publishing {
+//        publications {
+//            // Creates a Maven publication called "release".
+//            release(MavenPublication) {
+//                // Applies the component for the release build variant.
+//                from components.release
+//
+//                // You can then customize attributes of the publication as shown below.
+//                groupId = 'com.github.forjrking'
+//                artifactId = 'final'
+//                version = '1.0.0'
+//            }
+//            // Creates a Maven publication called “debug”.
+//            debug(MavenPublication) {
+//                // Applies the component for the debug build variant.
+//                from components.debug
+//
+//                groupId = 'com.github.forjrking'
+//                artifactId = 'final-debug'
+//                version = '1.0.0'
+//            }
+//        }
+//    }
+//}
