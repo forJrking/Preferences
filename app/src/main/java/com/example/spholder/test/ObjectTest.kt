@@ -3,7 +3,7 @@ package com.example.spholder.test
 import com.example.spholder.bo.DailyReward
 import com.example.spholder.bo.Time
 import com.example.spholder.daily.util.DataUtil
-import com.forjrking.preferences.kt.PreferenceHolder
+import com.forjrking.preferences.PreferencesOwner
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -13,7 +13,7 @@ import java.util.*
  * @date: 2020/8/1 14:57
  * @version: 1.0.0
  */
-object ObjectTest : PreferenceHolder(null, null, false) {
+object ObjectTest : PreferencesOwner(null, null, false) {
 
     var tempStr: String by bindToPreferenceField("0","temp_${day()}")
 

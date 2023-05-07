@@ -1,4 +1,4 @@
-package com.forjrking.preferences.provide.sharedpreferenceimpl;
+package com.forjrking.preferences.provide;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentProvider;

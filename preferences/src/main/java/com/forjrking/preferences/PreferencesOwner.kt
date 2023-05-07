@@ -1,17 +1,16 @@
-package com.forjrking.preferences.kt
+package com.forjrking.preferences
 
 import android.app.Application
 import android.content.SharedPreferences
-import com.forjrking.preferences.crypt.AesCrypt
+import com.forjrking.preferences.bindings.Clearable
+import com.forjrking.preferences.bindings.PreferenceFieldBinder
 import com.forjrking.preferences.crypt.Crypt
-import com.forjrking.preferences.kt.bindings.*
+import com.forjrking.preferences.crypt.InternalAESCrypt
 import com.forjrking.preferences.provide.createSharedPreferences
 import com.forjrking.preferences.serialize.Serializer
-import java.lang.reflect.Type
-import java.util.*
-import kotlin.collections.HashMap
+import com.forjrking.preferences.serialize.TypeToken
+import kotlin.properties.Delegates.notNull
 import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
@@ -19,16 +18,17 @@ import kotlin.reflect.jvm.isAccessible
 
 /***
  *SharedPreferences使用可以配合mmkv
- * @param name xml名称 this::class.java.simpleName 如果使用包名不同类字段相同会覆盖值
- * @param cryptKey 加密密钥  ｛原生sp多进程不支持加密  多进程本身数据不安全而且性能比较差综合考虑不加密｝
+ * @param name xml名称 this::class.java.simpleName 如果使用包名不同,类字段相同会覆盖值
+ * @param cryptKey 加密密钥  ｛原生sp多进程不支持加密 ｝
  * @param isMMKV  是否使用mmkv
- * @param isMultiProcess 是否使用多进程  建议mmkv搭配使用 sp性能很差
+ * @param isMultiProcess 是否使用多进程. 建议mmkv搭配使用, MultiProcessSp性能很差, 另外多进程默认关闭缓存
+ * 1. 当出现获取值始终不是期望的时候,请优先考虑关闭缓存.
  */
-open class PreferenceHolder(
+open class PreferencesOwner(
     private val name: String? = null,
     private val cryptKey: String? = null,
-    private val isMMKV: Boolean = false,
-    private val isMultiProcess: Boolean = false
+    protected val isMMKV: Boolean = false,
+    protected val isMultiProcess: Boolean = false
 ) {
 
     val preferences: SharedPreferences by lazy {
@@ -46,15 +46,18 @@ open class PreferenceHolder(
     /** DES: 减小edit实例化时候集合多次创建开销 */
     internal val edit: SharedPreferences.Editor by lazy { preferences.edit() }
 
-    /** DES: 加密实现 */
-    private var crypt: Crypt? = null
-
-    init {
-        // 加密数据实例
-        if (!isMMKV && !cryptKey.isNullOrEmpty()) {
-            crypt = AesCrypt(cryptKey)
+    /** DES: SP加密实现 MMKV 内部支持 */
+    protected var crypt: Crypt? = null
+        set(value) {
+            if (!isMMKV) {
+                field = value
+            }
         }
-    }
+        get() = field ?: field.apply {
+            if (!isMMKV && !cryptKey.isNullOrEmpty()) {
+                field = InternalAESCrypt(cryptKey)
+            }
+        }
 
     /**
      * @param default 默认值
@@ -62,43 +65,39 @@ open class PreferenceHolder(
      * @param caching 缓存开关
      * */
     protected inline fun <reified T : Any> bindToPreferenceField(
-        default: T, key: String? = null, caching: Boolean = true
-    ): ReadWriteProperty<PreferenceHolder, T> =
-        bindToPreferenceField(T::class, object : TypeToken<T>() {}.type, default, key, caching)
+        default: T, key: String? = null, caching: Boolean = !isMultiProcess
+    ): ReadWriteProperty<PreferencesOwner, T> = PreferenceFieldBinder(
+        clazz = T::class,
+        type = object : TypeToken<T>() {}.type,
+        default = default,
+        key = key,
+        caching = caching,
+        crypt = crypt
+    )
 
     protected inline fun <reified T : Any> bindToPreferenceFieldNullable(
-        key: String? = null, caching: Boolean = true
-    ): ReadWriteProperty<PreferenceHolder, T?> =
-        bindToPreferenceFieldNullable(T::class, object : TypeToken<T>() {}.type, key, caching)
-
-    protected fun <T : Any> bindToPreferenceField(
-        clazz: KClass<T>, type: Type,
-        default: T, key: String?, caching: Boolean = true
-    ): ReadWriteProperty<PreferenceHolder, T> =
-        PreferenceFieldBinder(clazz, type, default, key, caching, crypt)
-
-    protected fun <T : Any> bindToPreferenceFieldNullable(
-        clazz: KClass<T>, type: Type,
-        key: String?, caching: Boolean = true
-    ): ReadWriteProperty<PreferenceHolder, T?> =
-        PreferenceFieldBinderNullable(clazz, type, key, caching, crypt)
+        key: String? = null, caching: Boolean = !isMultiProcess
+    ): ReadWriteProperty<PreferencesOwner, T?> = PreferenceFieldBinder(
+        clazz = T::class,
+        type = object : TypeToken<T>() {}.type,
+        default = null,
+        key = key,
+        caching = caching,
+        crypt = crypt
+    )
 
     /**
      *  Function used to clear all SharedPreference and PreferenceHolder data. Useful especially
      *  during tests or when implementing Logout functionality.
      */
-    fun clear(safety: Boolean = true) {
-        forEachDelegate { delegate, property ->
-            if (safety && property.name.startsWith("_")) return@forEachDelegate
-            delegate.clear(this, property)
-        }
+    fun clear(safety: Boolean = true) = forEachDelegate { clear, property ->
+        if (safety && property.name.startsWith("_")) return@forEachDelegate
+        clear.clear(this, property)
     }
 
     /** DES: 清理缓存字段 */
-    fun clearCache() {
-        forEachDelegate { delegate, _ ->
-            delegate.clearCache()
-        }
+    fun clearCache() = forEachDelegate { clear, _ ->
+        clear.clearCache()
     }
 
     /**
@@ -111,7 +110,7 @@ open class PreferenceHolder(
         return if (receiver.isMMKV || unRaw) {
             HashMap<String, Any?>().also {
                 val properties = receiver::class.declaredMemberProperties
-                    .filterIsInstance<KProperty1<PreferenceHolder, *>>()
+                    .filterIsInstance<KProperty1<PreferencesOwner, *>>()
                 for (p in properties) {
                     val prevAccessible = p.isAccessible
                     if (!prevAccessible) p.isAccessible = true
@@ -146,9 +145,6 @@ open class PreferenceHolder(
         fun isInitialized(): Boolean = ::context.isInitialized
 
         /** DES: 序列化接口 */
-        var serializer: Serializer? = null
-            get() {
-                return field ?: throw ExceptionInInitializerError("serializer is null")
-            }
+        var serializer: Serializer by notNull()
     }
 }

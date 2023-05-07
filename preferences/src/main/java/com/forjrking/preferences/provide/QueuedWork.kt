@@ -1,4 +1,4 @@
-package com.forjrking.preferences.provide.sharedpreferenceimpl
+package com.forjrking.preferences.provide
 
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue

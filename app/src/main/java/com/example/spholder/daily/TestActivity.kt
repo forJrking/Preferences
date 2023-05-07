@@ -1,14 +1,15 @@
 package com.example.spholder.daily
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.example.spholder.R
 import com.example.spholder.bo.Game
 import com.example.spholder.databinding.ActivityTestBinding
 import com.example.spholder.log
+import com.example.spholder.test.TestMultiSP
 import com.example.spholder.test.TestmmkvSP
-import com.forjrking.preferences.kt.PreferenceHolder
+import com.forjrking.preferences.PreferencesOwner
 import com.forjrking.preferences.serialize.GsonSerializer
 import com.google.gson.Gson
 
@@ -19,8 +20,8 @@ class TestActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        PreferenceHolder.context = this.application
-        PreferenceHolder.serializer = GsonSerializer(Gson())
+        PreferencesOwner.context = this.application
+        PreferencesOwner.serializer = GsonSerializer(Gson())
         super.onCreate(savedInstanceState)
         val testBinding = ActivityTestBinding.inflate(layoutInflater)
         setContentView(testBinding.root)
@@ -31,8 +32,8 @@ class TestActivity : AppCompatActivity() {
         }
 
         TestmmkvSP.testStr.log()
-        TestmmkvSP.coin.toString().log()
-        TestmmkvSP.game = Game(1,"sadasdsada",mutableListOf())
+        TestmmkvSP.testNumber.toString().log()
+        TestmmkvSP.testObj = Game(1, "sad", mutableListOf())
         TestmmkvSP.getAll()?.forEach {
             Log.d("PreferenceHolder", "name:${it.key} value:${it.value}")
         }
@@ -40,5 +41,11 @@ class TestActivity : AppCompatActivity() {
 //        TestMultiSP.testStr.log()
 //        TestMultiSP.testLong.toString().log()
 //        TestMultiSP.game.toString().log()
+        testBinding.processButton.setOnClickListener {
+            TestMultiSP.testProcess = "testing"
+            TestmmkvSP.testProcess = "testing"
+            setResult(Activity.RESULT_OK)
+            finish()
+        }
     }
 }

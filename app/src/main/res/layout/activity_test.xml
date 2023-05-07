@@ -21,7 +21,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="12dp"
             android:gravity="center"
-            android:orientation="horizontal"/>
+            android:orientation="horizontal" />
 
         <TextView
             android:id="@+id/task1_tip"
@@ -33,5 +33,13 @@
             android:text="签到"
             android:textSize="14sp" />
     </LinearLayout>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/processButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="返回多进程测试"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,15 +1,13 @@
 package com.example.spholder
 
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.example.spholder.test.TestSP
-
-import org.junit.Test
-import org.junit.runner.RunWith
-
-import org.junit.Assert.*
 import java.util.*
 import java.util.concurrent.TimeUnit
+import org.junit.Assert.*
+import org.junit.Test
+import org.junit.runner.RunWith
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -27,7 +25,7 @@ class ExampleInstrumentedTest {
 
 
     @Test
-    fun benmark() {
+    fun benchmark() {
 
         val s1 = System.nanoTime()
         repeat(1) {
@@ -41,5 +39,13 @@ class ExampleInstrumentedTest {
         }
         val s3 = System.nanoTime()
         println("get Time: ${TimeUnit.NANOSECONDS.toMillis(s3 - s2)}")
+    }
+
+    @Test
+    fun benchmarkForSpNormal() {
+        TestSP.testStr.log()
+        TestSP.testObj.log()
+        TestSP.testStr = "testStr"
+        TestSP.testStr.log()
     }
 }

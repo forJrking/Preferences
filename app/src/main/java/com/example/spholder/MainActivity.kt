@@ -1,6 +1,7 @@
 package com.example.spholder
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -12,80 +13,86 @@ import com.example.spholder.test.TestCryptSP
 import com.example.spholder.test.TestMultiSP
 import com.example.spholder.test.TestSP
 import com.example.spholder.test.TestmmkvSP
-import com.forjrking.preferences.kt.PreferenceHolder
+import com.forjrking.activity.library.launch4Result
+import com.forjrking.preferences.PreferencesOwner
 import com.forjrking.preferences.serialize.GsonSerializer
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import kotlin.system.measureTimeMillis
 
 class MainActivity : AppCompatActivity() {
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         MMKV.initialize(this)
-        PreferenceHolder.context = this.application
-        PreferenceHolder.serializer = GsonSerializer(Gson())
+        PreferencesOwner.context = this.application
+        PreferencesOwner.serializer = GsonSerializer(Gson())
         super.onCreate(savedInstanceState)
         val mainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainBinding.root)
 
-        mainBinding.btn1.setOnClickListener {
-//            TestSP.clear()
-//            TestSP.clearCache()
-//            TestSP.testStr.log()
-//            TestSP.testLong.toString().log()
-//            TestSP.game.toString().log()
-//            ////////////////////////////普通测试///////////////////////////
-//            TestSP.testStr = "testStr"
-//            TestSP.testLong = 100232L
-//            ////////////////////////////序列化测试///////////////////////////
-//            TestSP.game = Game(1,"sadasdsada",mutableListOf())
-//
-//
-//            TestSP.testStr.log()
-//            TestSP.testLong.toString().log()
-//            TestSP.game.toString().log()
-
-            //加密测试
-
+        mainBinding.spBtn.setOnClickListener {
             TestCryptSP.testStr.log()
-            TestCryptSP.testLong.toString().log()
-            TestCryptSP.game.toString().log()
+            TestCryptSP.testObj.log()
             ////////////////////////////普通测试///////////////////////////
             TestCryptSP.testStr = "testStr"
-            TestCryptSP._testStr2 = "_testStr2222"
-            TestCryptSP.testLong = 100232L
-            ////////////////////////////序列化测试///////////////////////////
-            TestCryptSP.game = Game(1, "sadasdsada", mutableListOf())
-
             TestCryptSP.testStr.log()
-            TestCryptSP._testStr2.log()
-            TestCryptSP.testLong.toString().log()
-            TestCryptSP.game.toString().log()
+//            ////////////////////////////序列化测试///////////////////////////
+//            TestSP.clearCache()
+//            var game = Game(1, "multi", mutableListOf())
+//            TestSP.game = game
+//            game = TestSP.game!!
+//            game.log()
+//            game.numberId = 2
+//            TestSP.game = game
+//            TestSP.game.log()
+//            ObjectTest.clearCache()
+//            val dailyReward = ObjectTest.taskDailyReward
+//            dailyReward.log()
+//            ObjectTest.taskDailyReward = dailyReward
+//            dailyReward.forEach {
+//                it.isClmiaed = true
+//            }
+//            ObjectTest.taskDailyReward = dailyReward
+//            ObjectTest.taskDailyReward.log()
+            //加密测试
 
-            TestCryptSP.getAll()?.forEach {
-                Log.d("MainActivity", "TestCryptSP ->name:${it.key} value:${it.value}")
-            }
-            TestCryptSP.clear()
-            TestCryptSP.getAll()?.forEach {
-                Log.d("MainActivity", "TestCryptSP ->name:${it.key} value:${it.value}")
-            }
+//            TestCryptSP.testStr.log()
+//            TestCryptSP.testLong.log()
+//            TestCryptSP.game.log()
+//            ////////////////////////////普通测试///////////////////////////
+//            TestCryptSP.testStr = "testStr"
+//            TestCryptSP._testStr2 = "_testStr2222"
+//            TestCryptSP.testLong = 100232L
+//            ////////////////////////////序列化测试///////////////////////////
+//            TestCryptSP.game = Game(1, "sadasdsada", mutableListOf())
+//
+//            TestCryptSP.testStr.log()
+//            TestCryptSP._testStr2.log()
+//            TestCryptSP.testLong.log()
+//            TestCryptSP.game.log()
+//
+//            TestCryptSP.getAll()?.forEach {
+//                Log.d("MainActivity", "TestCryptSP ->name:${it.key} value:${it.value}")
+//            }
+//            TestCryptSP.clear()
+//            TestCryptSP.getAll()?.forEach {
+//                Log.d("MainActivity", "TestCryptSP ->name:${it.key} value:${it.value}")
+//            }
         }
 
-
-
-        mainBinding.btn2.setOnClickListener {
+        mainBinding.mmkvBtn.setOnClickListener {
             TestmmkvSP.testStr.log()
-            TestmmkvSP.coin.toString().log()
+            TestmmkvSP.testNumber.log()
 
-            TestmmkvSP.testStr = "multi Process test"
-            TestmmkvSP.coin = 2000323
+            TestmmkvSP.testStr = "mmkv test"
+            TestmmkvSP.testNumber = 2000323
             TestmmkvSP.testStr.log()
-            TestmmkvSP.coin.toString().log()
+            TestmmkvSP.testNumber.log()
         }
 
-
-        mainBinding.btn3.setOnClickListener {
+        mainBinding.processBtn.setOnClickListener {
             TestmmkvSP.testStr = "multi Process jump"
-            TestmmkvSP.coin = 2998888
+            TestmmkvSP.testNumber = 2998888
 
             TestMultiSP.testStr = "multi testStr"
             TestMultiSP.testLong = 199999L
@@ -94,31 +101,45 @@ class MainActivity : AppCompatActivity() {
             TestMultiSP.getAll()?.forEach {
                 Log.d("PreferenceHolder", "TestMultiSP ->name:${it.key} value:${it.value}")
             }
-            startActivity(Intent(this@MainActivity, TestActivity::class.java))
-        }
 
-
-        /////////////////////////////性能测试///////////////////////
-        val writeTimeMillis = measureTimeMillis {
-            repeat(1000) {
-                TestSP.testStr = "BBBXXEEEE$it"
+            TestMultiSP.testProcess = "main"
+            TestmmkvSP.testProcess = "main"
+            val intent = Intent(this@MainActivity, TestActivity::class.java)
+            this.launch4Result(intent, 201) { requestCode, resultCode, data ->
+                when (resultCode) {
+                    Activity.RESULT_OK -> {
+                        mainBinding.text.text =
+                            "SP:${TestMultiSP.testProcess}, MMKV:${TestmmkvSP.testProcess}"
+                    }
+                    else -> Unit
+                }
+                TestMultiSP.testProcess?.log()
+                TestmmkvSP.testProcess?.log()
             }
         }
-        println("writeTimeMillis: $writeTimeMillis")
-
-        val readTimeMillis = measureTimeMillis {
-            repeat(1000) {
-                val sp = TestSP.testStr
-                val temp = sp
+        mainBinding.benchMarkBtn.setOnClickListener {
+            /////////////////////////////性能测试///////////////////////
+            val writeTimeMillis = measureTimeMillis {
+                repeat(1000) {
+                    TestSP.testStr = "BXE$it"
+                }
             }
-        }
-        println("readTimeMillis: $readTimeMillis")
+            println("writeTimeMillis: $writeTimeMillis")
 
-        mainBinding.text.text =
-            "writeTimeMillis: $writeTimeMillis \nreadTimeMillis: $readTimeMillis"
+            val readTimeMillis = measureTimeMillis {
+                repeat(1000) {
+                    val sp = TestSP.testStr
+                    val temp = sp
+                }
+            }
+            println("readTimeMillis: $readTimeMillis")
+
+            mainBinding.text.text =
+                "writeTimeMillis: $writeTimeMillis \nreadTimeMillis: $readTimeMillis"
+        }
     }
 }
 
-fun String.log() {
-    Log.d("MainActivity", this)
+fun Any?.log() {
+    Log.w("MainActivity", "$this")
 }
