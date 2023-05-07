@@ -6,7 +6,7 @@
 
 > `SharedPreferences` 对于 Android 开发者来说是最轻量级的KeyValue持久化组件了，相信大家都有自己的一套封装。而且微信基于mmap实现的MMKV高性能kv组件大家也都不陌生了。那么kotlin到来之后，大家还在沿用java的用法么？今天给大家带来你没有见过的船新版本，贪玩。。哦不`SharedPreferences`的写法，无意间我发现一个开源库 PreferenceHolder ，简洁的写法一下子吸引了我，只需要变量的赋值和读取就可以实现sp繁琐的方法，让我想上手来试试，结果发现很多小问题，然后进行了一波打磨优化。最终实现了`PowefulPreferenceHolder`支持多进程、数据加解密、MMKV，另外对原生`SharedPreferences`进行 Hook优化降低ANR，各种极致优化。
 
-**1.0.6版本重大升级!重大升级!重大升级 支持sp和mmkv的getAll方法**
+支持sp和mmkv的getAll方法
 
 ### 项目github地址
 

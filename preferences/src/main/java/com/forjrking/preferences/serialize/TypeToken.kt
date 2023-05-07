@@ -1,14 +1,22 @@
 package com.forjrking.preferences.serialize
 
 import java.io.Serializable
-import java.lang.reflect.*
+import java.lang.reflect.GenericArrayType
+import java.lang.reflect.Modifier
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
+import java.lang.reflect.WildcardType
 
 open class TypeToken<T> protected constructor() {
 
     private val superclass = javaClass.genericSuperclass as ParameterizedType
     val type: Type = canonicalize(superclass.actualTypeArguments[0])
 
-    private class ParameterizedTypeImpl(ownerType: Type?, rawType: Type, vararg typeArguments: Type) : ParameterizedType, Serializable {
+    private class ParameterizedTypeImpl(
+        ownerType: Type?,
+        rawType: Type,
+        vararg typeArguments: Type
+    ) : ParameterizedType, Serializable {
         private val ownerType: Type?
         private val rawType: Type
         private val typeArguments: List<Type>
@@ -16,7 +24,8 @@ open class TypeToken<T> protected constructor() {
         init {
             // require an owner type if the raw type needs it
             if (rawType is Class<*>) {
-                val isStaticOrTopLevelClass = Modifier.isStatic(rawType.modifiers) || rawType.enclosingClass == null
+                val isStaticOrTopLevelClass =
+                    Modifier.isStatic(rawType.modifiers) || rawType.enclosingClass == null
                 checkArgument(ownerType != null || isStaticOrTopLevelClass)
             }
 
@@ -56,7 +65,8 @@ open class TypeToken<T> protected constructor() {
         override fun toString() = typeToString(componentType) + "[]"
     }
 
-    private class WildcardTypeImpl(upperBounds: Array<Type>, lowerBounds: Array<Type>) : WildcardType, Serializable {
+    private class WildcardTypeImpl(upperBounds: Array<Type>, lowerBounds: Array<Type>) :
+        WildcardType, Serializable {
         private val upperBound: Type
         private val lowerBound: Type?
 
@@ -115,7 +125,8 @@ open class TypeToken<T> protected constructor() {
             checkArgument(type !is Class<*> || !type.isPrimitive)
         }
 
-        internal fun <T> checkNotNull(obj: T?): T = if (obj != null) obj else throw NullPointerException()
+        internal fun <T> checkNotNull(obj: T?): T =
+            if (obj != null) obj else throw NullPointerException()
 
         internal fun checkArgument(condition: Boolean) {
             if (!condition) throw IllegalArgumentException()

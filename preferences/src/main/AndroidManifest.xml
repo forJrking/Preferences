@@ -5,7 +5,7 @@
         <provider
             android:name=".provide.MultiProcessSharedPreferences"
             android:authorities="${applicationId}.MultiProcessSharedPreferences"
-            android:exported="true" />
+            android:exported="false" />
 
     </application>
 </manifest>

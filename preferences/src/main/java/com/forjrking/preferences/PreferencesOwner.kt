@@ -142,7 +142,7 @@ open class PreferencesOwner(
         lateinit var context: Application
 
         /** DES: isInitialized 放到伴生对象外面会报错。。。 */
-        fun isInitialized(): Boolean = Companion::context.isInitialized
+        fun isInitialized(): Boolean = ::context.isInitialized
 
         /** DES: 序列化接口 */
         var serializer: Serializer by notNull()

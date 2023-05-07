@@ -105,17 +105,16 @@ class MainActivity : AppCompatActivity() {
             TestMultiSP.testProcess = "main"
             TestmmkvSP.testProcess = "main"
             val intent = Intent(this@MainActivity, TestActivity::class.java)
-            this.launch4Result(intent, 201) { _, resultCode, _ ->
+            this.launch4Result(intent, 201) { requestCode, resultCode, data ->
                 when (resultCode) {
                     Activity.RESULT_OK -> {
                         mainBinding.text.text =
                             "SP:${TestMultiSP.testProcess}, MMKV:${TestmmkvSP.testProcess}"
-                        TestMultiSP.testProcess?.log()
-                        TestmmkvSP.testProcess?.log()
                     }
-
-                    else -> {}
+                    else -> Unit
                 }
+                TestMultiSP.testProcess?.log()
+                TestmmkvSP.testProcess?.log()
             }
         }
         mainBinding.benchMarkBtn.setOnClickListener {
