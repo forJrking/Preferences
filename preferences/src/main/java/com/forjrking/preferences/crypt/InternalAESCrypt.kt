@@ -12,7 +12,7 @@ import javax.crypto.spec.SecretKeySpec
 /**
  * AES 实现的加解密工具  性能不够优秀建议使用C++
  * */
-class AesCrypt(override val psd: String) : Crypt {
+internal class InternalAESCrypt(private val psd: String) : Crypt {
 
     private val AES_MODE = "AES/CBC/PKCS5Padding" // PKCS7Padding 性能竟然是前者2倍 搞不懂。。
     private val HASH_ALGORITHM = "SHA-256"
@@ -24,7 +24,7 @@ class AesCrypt(override val psd: String) : Crypt {
         0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x00
     )
 
-    val key: SecretKeySpec by lazy { generateKey(psd) }
+    private val key: SecretKeySpec by lazy { generateKey(psd) }
 
     /**
      * Generates SHA256 hash of the password which is used as key

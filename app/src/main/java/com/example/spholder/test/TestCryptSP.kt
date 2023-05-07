@@ -1,7 +1,8 @@
 package com.example.spholder.test
 
 import com.example.spholder.bo.Game
-import com.forjrking.preferences.kt.PreferenceHolder
+import com.forjrking.preferences.crypt.Crypt
+import com.forjrking.preferences.PreferencesOwner
 
 /**
  * @description:
@@ -9,17 +10,22 @@ import com.forjrking.preferences.kt.PreferenceHolder
  * @date: 2020/7/2 10:48
  * @version: 1.0.0
  */
-object TestCryptSP : PreferenceHolder(null, "Asdshajfsjk23432432") {
+object TestCryptSP : PreferencesOwner(null, "Asdshajfsjk23432432", true) {
 
-    var testStr: String by bindToPreferenceField("")
+    init {
+        //自定义加密接口
+        crypt = object : Crypt {
+            override fun encrypt(text: String?): String? {
+                return ""
+            }
 
-    var testLong: Long by bindToPreferenceField(0L, "Number")
+            override fun decrypt(cipherText: String?): String? {
+                return ""
+            }
+        }
+    }
 
-    var game: Game? by bindToPreferenceFieldNullable()
+    var testStr: String by bindToPreferenceField("testStr-default")
 
-    var aa1: String = "xxxxxx"
-
-    var _aa2: String = "xxxxxx2"
-
-    var _testStr2: String by bindToPreferenceField("_testStr2")
+    var testObj: Game? by bindToPreferenceFieldNullable()
 }

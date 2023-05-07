@@ -1,11 +1,7 @@
-package com.forjrking.preferences.kt
+package com.forjrking.preferences.serialize
 
 import java.io.Serializable
-import java.lang.reflect.GenericArrayType
-import java.lang.reflect.Modifier
-import java.lang.reflect.ParameterizedType
-import java.lang.reflect.Type
-import java.lang.reflect.WildcardType
+import java.lang.reflect.*
 
 open class TypeToken<T> protected constructor() {
 

@@ -1,7 +1,6 @@
 package com.forjrking.preferences.serialize
 
 import com.google.gson.Gson
-import java.lang.RuntimeException
 import java.lang.reflect.Type
 
 class GsonSerializer(val gson: Gson) : Serializer {

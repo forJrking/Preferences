@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
-import com.forjrking.preferences.crypt.AesCrypt;
 import com.forjrking.preferences.crypt.Crypt;
 import com.forjrking.preferences.provide.ProvideKt;
 import com.forjrking.preferences.serialize.Serializer;
@@ -48,7 +47,7 @@ public final class SpRetrofit {
         }
         Crypt mCrypt = null;
         if (!TextUtils.isEmpty(cryptKey) && !config.isMMKV()) {
-            mCrypt = new AesCrypt(cryptKey);
+//            mCrypt = new InternalAESCrypt(cryptKey);
         }
         SharedPreferences preferences = ProvideKt.createSharedPreferences(context, configName, cryptKey, config.isMultiProcess(), config.isMMKV());
         // 创建动态代理

@@ -3,7 +3,7 @@
     <application>
         <!-- 多进程的sp-->
         <provider
-            android:name=".provide.sharedpreferenceimpl.MultiProcessSharedPreferences"
+            android:name=".provide.MultiProcessSharedPreferences"
             android:authorities="${applicationId}.MultiProcessSharedPreferences"
             android:exported="true" />
 
