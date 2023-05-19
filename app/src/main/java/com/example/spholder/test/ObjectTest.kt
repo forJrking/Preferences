@@ -15,7 +15,7 @@ import java.util.*
  */
 object ObjectTest : PreferencesOwner(null, null, false) {
 
-    var tempStr: String by bindToPreferenceField("0","temp_${day()}")
+    var tempStr: String by preferenceBinding("0","temp_${day()}")
 
 
     private fun day(times: Long = System.currentTimeMillis()): String {
@@ -28,7 +28,7 @@ object ObjectTest : PreferencesOwner(null, null, false) {
         add(Time(2, 0L))
     }
 
-    var times: MutableList<Time> by bindToPreferenceField(default)
+    var times: MutableList<Time> by preferenceBinding(default)
 
     val dailyCoinDefault: MutableList<DailyReward>
         get() {
@@ -44,5 +44,5 @@ object ObjectTest : PreferencesOwner(null, null, false) {
             }
         }
 
-    var taskDailyReward: MutableList<DailyReward> by bindToPreferenceField(dailyCoinDefault)
+    var taskDailyReward: MutableList<DailyReward> by preferenceBinding(dailyCoinDefault)
 }

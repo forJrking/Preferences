@@ -10,7 +10,6 @@ import com.example.spholder.log
 import com.example.spholder.test.TestMultiSP
 import com.example.spholder.test.TestmmkvSP
 import com.forjrking.preferences.PreferencesOwner
-import com.forjrking.preferences.serialize.GsonSerializer
 import com.google.gson.Gson
 
 
@@ -21,7 +20,6 @@ class TestActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         PreferencesOwner.context = this.application
-        PreferencesOwner.serializer = GsonSerializer(Gson())
         super.onCreate(savedInstanceState)
         val testBinding = ActivityTestBinding.inflate(layoutInflater)
         setContentView(testBinding.root)

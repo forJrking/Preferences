@@ -25,7 +25,7 @@ object TestCryptSP : PreferencesOwner(null, "Asdshajfsjk23432432", true) {
         }
     }
 
-    var testStr: String by bindToPreferenceField("testStr-default")
+    var testStr: String by preferenceBinding("testStr-default")
 
-    var testObj: Game? by bindToPreferenceFieldNullable()
+    var testObj: Game? by preferenceNullableBinding()
 }

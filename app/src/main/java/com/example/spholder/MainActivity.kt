@@ -6,6 +6,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import com.example.spholder.bo.Game
 import com.example.spholder.daily.TestActivity
 import com.example.spholder.databinding.ActivityMainBinding
@@ -15,8 +17,6 @@ import com.example.spholder.test.TestSP
 import com.example.spholder.test.TestmmkvSP
 import com.forjrking.activity.library.launch4Result
 import com.forjrking.preferences.PreferencesOwner
-import com.forjrking.preferences.serialize.GsonSerializer
-import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import kotlin.system.measureTimeMillis
 
@@ -25,12 +25,23 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         MMKV.initialize(this)
         PreferencesOwner.context = this.application
-        PreferencesOwner.serializer = GsonSerializer(Gson())
         super.onCreate(savedInstanceState)
         val mainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainBinding.root)
 
         mainBinding.spBtn.setOnClickListener {
+            val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+            val sharedPreferences = EncryptedSharedPreferences.create(
+                "my_secure_prefs",
+                masterKeyAlias,
+                this@MainActivity,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+            val editor = sharedPreferences.edit()
+            editor.putString("secret_data", "this is a secret message")
+            editor.apply()
+
             TestCryptSP.testStr.log()
             TestCryptSP.testObj.log()
             ////////////////////////////普通测试///////////////////////////
@@ -111,6 +122,7 @@ class MainActivity : AppCompatActivity() {
                         mainBinding.text.text =
                             "SP:${TestMultiSP.testProcess}, MMKV:${TestmmkvSP.testProcess}"
                     }
+
                     else -> Unit
                 }
                 TestMultiSP.testProcess?.log()

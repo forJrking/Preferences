@@ -2,7 +2,6 @@ package com.forjrking.preferences.bindings
 
 import com.forjrking.preferences.PreferencesOwner
 import com.forjrking.preferences.cache.PreferenceAtomicCache
-import com.forjrking.preferences.crypt.Crypt
 import java.lang.reflect.Type
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
@@ -13,8 +12,7 @@ class PreferenceFieldBinder<T>(
     private val type: Type,
     private val default: T,
     private val key: String?,
-    private val caching: Boolean,
-    private val crypt: Crypt?
+    private val caching: Boolean
 ) : ReadWriteProperty<PreferencesOwner, T>, Clearable {
 
     private val atomicCache by lazy { PreferenceAtomicCache<T>(caching) }
@@ -33,9 +31,9 @@ class PreferenceFieldBinder<T>(
         //缓存开启时候不用读取？除了需要序列化的对象等  其他读取sp也是内存 感觉意义不大  需要测试性能
         return atomicCache.acquire {
             if (default == null) {
-                thisRef.preferences.getValue(clazz, type, key, getDefault(clazz), crypt)
+                thisRef.preferences.getValue(clazz, type, key, getDefault(clazz))
             } else {
-                thisRef.preferences.getValue(clazz, type, key, default, crypt)
+                thisRef.preferences.getValue(clazz, type, key, default)
             } as T
         }
     }
@@ -46,7 +44,7 @@ class PreferenceFieldBinder<T>(
                 thisRef.edit.remove(getKey(key, property)).apply()
             } else {
                 thisRef.edit.apply {
-                    putValue(clazz, getKey(key, property), value as? Any, crypt)
+                    putValue(clazz, getKey(key, property), value as? Any)
                 }.apply()
             }
         }

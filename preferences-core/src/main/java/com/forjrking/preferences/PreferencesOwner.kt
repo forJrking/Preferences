@@ -64,26 +64,24 @@ open class PreferencesOwner(
      * @param key 自定义key
      * @param caching 缓存开关
      * */
-    protected inline fun <reified T : Any> bindToPreferenceField(
+    protected inline fun <reified T> preferenceBinding(
         default: T, key: String? = null, caching: Boolean = !isMultiProcess
     ): ReadWriteProperty<PreferencesOwner, T> = PreferenceFieldBinder(
         clazz = T::class,
         type = object : TypeToken<T>() {}.type,
         default = default,
         key = key,
-        caching = caching,
-        crypt = crypt
+        caching = caching
     )
 
-    protected inline fun <reified T : Any> bindToPreferenceFieldNullable(
+    protected inline fun <reified T> preferenceNullableBinding(
         key: String? = null, caching: Boolean = !isMultiProcess
     ): ReadWriteProperty<PreferencesOwner, T?> = PreferenceFieldBinder(
         clazz = T::class,
         type = object : TypeToken<T>() {}.type,
         default = null,
         key = key,
-        caching = caching,
-        crypt = crypt
+        caching = caching
     )
 
     /**

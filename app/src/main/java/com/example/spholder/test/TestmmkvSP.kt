@@ -11,12 +11,12 @@ import com.forjrking.preferences.PreferencesOwner
  */
 object TestmmkvSP : PreferencesOwner(null, "12345678", true, true) {
 
-    var testStr: String by bindToPreferenceField("")
+    var testStr: String by preferenceBinding("")
 
-    var testNumber: Long by bindToPreferenceField(0L)
+    var testNumber: Long by preferenceBinding(0L)
 
-    var testProcess by bindToPreferenceFieldNullable<String>()
+    var testProcess by preferenceNullableBinding<String>()
 
-    var testObj: Game? by bindToPreferenceFieldNullable()
+    var testObj: Game? by preferenceNullableBinding()
 
 }

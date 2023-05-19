@@ -11,8 +11,8 @@ import com.forjrking.preferences.PreferencesOwner
  */
 object TestSP : PreferencesOwner("test", "") {
 
-    var testStr: String by bindToPreferenceField("testStr-default")
+    var testStr: String by preferenceBinding("testStr-default")
 
-    var testObj: Game? by bindToPreferenceFieldNullable()
+    var testObj: Game? by preferenceNullableBinding()
 
 }

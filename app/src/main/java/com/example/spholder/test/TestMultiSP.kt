@@ -11,12 +11,12 @@ import com.forjrking.preferences.PreferencesOwner
  */
 object TestMultiSP : PreferencesOwner(null, "123434334", false, true) {
 
-    var testProcess by bindToPreferenceFieldNullable<String>()
+    var testProcess by preferenceNullableBinding<String>()
 
-    var testStr: String by bindToPreferenceField("multi")
+    var testStr: String by preferenceBinding("multi")
 
-    var testLong: Long by bindToPreferenceField(0L, "multiNumber")
+    var testLong: Long by preferenceBinding(0L, "multiNumber")
 
-    var game: Game? by bindToPreferenceFieldNullable()
+    var game: Game? by preferenceNullableBinding(null)
 
 }
