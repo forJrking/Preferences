@@ -4,13 +4,17 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import android.util.Log
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 
 
 /**
- * @description:
+ * DES: 返回hook的SharedPreferences实例
+ * 8.0以下 Reflect pending work finishers
+ * 8.0以上 Reflect finishers PrivateApi
  * @author: 岛主
  * @date: 2020/7/21 11:21
  * @version: 1.0.0
@@ -23,6 +27,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * 此方法不提供MMKV初始化需要自己操作配置
  */
 @JvmOverloads
+@SuppressLint("PrivateApi")
+@Suppress("UNCHECKED_CAST")
 fun Context.createSharedPreferences(
     name: String? = null,
     cryptKey: String? = null,
@@ -39,48 +45,59 @@ fun Context.createSharedPreferences(
         else com.tencent.mmkv.MMKV.SINGLE_PROCESS_MODE
         com.tencent.mmkv.MMKV.mmkvWithID(xmlName, mode, cryptKey)
     } else {
+        run {
+            try {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                    val clz = Class.forName("android.app.QueuedWork")
+                    val field = clz.getDeclaredField("sPendingWorkFinishers")
+                    field.isAccessible = true
+                    val queue = field.get(clz) as? ConcurrentLinkedQueue<Runnable>
+                    if (queue != null) {
+                        val proxy = ConcurrentLinkedQueueProxy(queue)
+                        field.set(queue, proxy)
+                    }
+                } else {
+                    val clz = Class.forName("android.app.QueuedWork")
+                    val field = clz.getDeclaredField("sFinishers")
+                    field.isAccessible = true
+                    val queue = field.get(clz) as? LinkedList<Runnable>
+                    if (queue != null) {
+                        val linkedListProxy = LinkedListProxy(queue)
+                        field.set(queue, linkedListProxy)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
         return if (isMultiProcess) {
-            MultiProcessSharedPreferences.getSharedPreferences(this, xmlName, Context.MODE_PRIVATE)
+            MultiProcessSharedPreferences.getSharedPreferences(this, xmlName, cryptKey)
         } else {
-            hookSharedPreferences(this, xmlName, Context.MODE_PRIVATE)
+            compatSharedPreferences(this, xmlName, cryptKey)
         }
     }
 }
 
-/**
- * DES: 返回hook的SharedPreferences实例
- * 8.0以下 Reflect pending work finishers
- * 8.0以上 Reflect finishers PrivateApi
- */
-@SuppressLint("PrivateApi")
-@Suppress("UNCHECKED_CAST")
-internal fun hookSharedPreferences(
+internal fun compatSharedPreferences(
     context: Context,
     name: String,
-    mode: Int
+    keyAlias: String?
 ): SharedPreferences {
-    try {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            val clz = Class.forName("android.app.QueuedWork")
-            val field = clz.getDeclaredField("sPendingWorkFinishers")
-            field.isAccessible = true
-            val queue = field.get(clz) as? ConcurrentLinkedQueue<Runnable>
-            if (queue != null) {
-                val proxy = ConcurrentLinkedQueueProxy(queue)
-                field.set(queue, proxy)
-            }
-        } else {
-            val clz = Class.forName("android.app.QueuedWork")
-            val field = clz.getDeclaredField("sFinishers")
-            field.isAccessible = true
-            val queue = field.get(clz) as? LinkedList<Runnable>
-            if (queue != null) {
-                val linkedListProxy = LinkedListProxy(queue)
-                field.set(queue, linkedListProxy)
-            }
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
+    return if (keyAlias.isNullOrEmpty()) {
+        context.getSharedPreferences(name, Context.MODE_PRIVATE)
+    } else {
+        val buildAES256GCMKeyGenParameterSpec = KeyGenParameterSpec.Builder(
+            keyAlias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+        ).setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+            .setKeySize(256)
+            .build()
+        androidx.security.crypto.EncryptedSharedPreferences.create(
+            name,
+            androidx.security.crypto.MasterKeys.getOrCreate(buildAES256GCMKeyGenParameterSpec),
+            context,
+            androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
     }
-    return context.getSharedPreferences(name, mode)
 }

@@ -4,8 +4,6 @@ import android.app.Application
 import android.content.SharedPreferences
 import com.forjrking.preferences.bindings.Clearable
 import com.forjrking.preferences.bindings.PreferenceFieldBinder
-import com.forjrking.preferences.crypt.Crypt
-import com.forjrking.preferences.crypt.InternalAESCrypt
 import com.forjrking.preferences.provide.createSharedPreferences
 import com.forjrking.preferences.serialize.Serializer
 import com.forjrking.preferences.serialize.TypeToken
@@ -45,19 +43,6 @@ open class PreferencesOwner(
 
     /** DES: 减小edit实例化时候集合多次创建开销 */
     internal val edit: SharedPreferences.Editor by lazy { preferences.edit() }
-
-    /** DES: SP加密实现 MMKV 内部支持 */
-    protected var crypt: Crypt? = null
-        set(value) {
-            if (!isMMKV) {
-                field = value
-            }
-        }
-        get() = field ?: field.apply {
-            if (!isMMKV && !cryptKey.isNullOrEmpty()) {
-                field = InternalAESCrypt(cryptKey)
-            }
-        }
 
     /**
      * @param default 默认值
@@ -100,12 +85,10 @@ open class PreferencesOwner(
 
     /**
      * 获取所有key-value 默认根据配置是否加解密决定 mmkv默认必须解密 此功能无效
-     * @unRaw 熟肉 true  表示获取到真实数据 即解密后的 key-value
-     *        生肉 false 表示获取到的数据是sp xml真实数据可能会有加密数据
      * */
-    fun getAll(unRaw: Boolean = crypt != null): MutableMap<String, *>? {
+    fun getAll(): MutableMap<String, *>? {
         val receiver = this
-        return if (receiver.isMMKV || unRaw) {
+        return if (receiver.isMMKV) {
             HashMap<String, Any?>().also {
                 val properties = receiver::class.declaredMemberProperties
                     .filterIsInstance<KProperty1<PreferencesOwner, *>>()

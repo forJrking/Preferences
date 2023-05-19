@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
-import com.forjrking.preferences.crypt.Crypt;
+import com.example.spholder.test.Crypt;
 import com.forjrking.preferences.provide.ProvideKtKt;
 import com.forjrking.preferences.serialize.Serializer;
 

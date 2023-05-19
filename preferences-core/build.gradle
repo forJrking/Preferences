@@ -36,6 +36,7 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation libs.kotlin.reflect
     compileOnly libs.mmkv
+    compileOnly libs.androidx.security
     testImplementation libs.junit4
 }
 
