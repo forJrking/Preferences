@@ -1,5 +1,5 @@
 jdk:
-  - openjdk11
+  - openjdk17
 android:
   components:
     - build-tools-33.0.0
