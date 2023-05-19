@@ -39,7 +39,11 @@ fun Context.createSharedPreferences(
         else com.tencent.mmkv.MMKV.SINGLE_PROCESS_MODE
         com.tencent.mmkv.MMKV.mmkvWithID(xmlName, mode, cryptKey)
     } else {
-        getSharedPreferences(this, xmlName, isMultiProcess)
+        return if (isMultiProcess) {
+            MultiProcessSharedPreferences.getSharedPreferences(this, xmlName, Context.MODE_PRIVATE)
+        } else {
+            hookSharedPreferences(this, xmlName, Context.MODE_PRIVATE)
+        }
     }
 }
 
@@ -50,10 +54,10 @@ fun Context.createSharedPreferences(
  */
 @SuppressLint("PrivateApi")
 @Suppress("UNCHECKED_CAST")
-private fun getSharedPreferences(
+internal fun hookSharedPreferences(
     context: Context,
     name: String,
-    isMultiProcess: Boolean
+    mode: Int
 ): SharedPreferences {
     try {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -78,10 +82,5 @@ private fun getSharedPreferences(
     } catch (e: Exception) {
         e.printStackTrace()
     }
-    val mode = Context.MODE_PRIVATE
-    return if (isMultiProcess) {
-        MultiProcessSharedPreferences.getSharedPreferences(context, name, mode)
-    } else {
-        context.getSharedPreferences(name, mode)
-    }
+    return context.getSharedPreferences(name, mode)
 }
