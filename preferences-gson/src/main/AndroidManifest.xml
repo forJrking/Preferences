@@ -9,7 +9,7 @@
             android:exported="false"
             tools:node="merge">
             <meta-data
-                android:name="${applicationId}.serialize.GsonSerializerInitializer"
+                android:name="com.forjrking.preferences.serialize.GsonSerializerInitializer"
                 android:value="androidx.startup" />
         </provider>
     </application>
