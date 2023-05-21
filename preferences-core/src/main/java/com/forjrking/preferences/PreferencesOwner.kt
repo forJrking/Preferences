@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.forjrking.preferences.bindings.Enhance
 import com.forjrking.preferences.bindings.PreferenceFieldBinder
+import com.forjrking.preferences.cache.AtomicCache
 import com.forjrking.preferences.provide.createSharedPreferences
 import com.forjrking.preferences.serialize.Serializer
 import com.forjrking.preferences.serialize.TypeToken
@@ -54,7 +55,7 @@ open class PreferencesOwner(
         type = object : TypeToken<T>() {}.type,
         default = default,
         key = key,
-        caching = caching
+        cache = AtomicCache(caching)
     )
 
     protected inline fun <reified T> preferenceNullableBinding(
@@ -64,7 +65,7 @@ open class PreferencesOwner(
         type = object : TypeToken<T>() {}.type,
         default = null,
         key = key,
-        caching = caching
+        cache = AtomicCache(caching)
     )
 
     /**
@@ -82,13 +83,16 @@ open class PreferencesOwner(
     }
 
     /**
-     * 获取所有key-value 默认根据配置是否加解密决定 mmkv默认必须解密 此功能无效
+     * 获取所有key-value
+     * @unRaw 熟肉 true  表示获取到真实key,包括自定义key
+     *        生肉 false 表示获取到key数据为字段命名
      * */
-    fun getAll(): MutableMap<String, *>? {
+    fun getAll(unRaw: Boolean = true): MutableMap<String, *>? {
         return if (isMMKV) {
             HashMap<String, Any?>().also {
                 forEachDelegate { enhance, property ->
-                    it[enhance.key(property)] = property.get(this)
+                    val key = if (unRaw) enhance.key(property) else property.name
+                    it[key] = property.get(this)
                 }
             }
         } else {
