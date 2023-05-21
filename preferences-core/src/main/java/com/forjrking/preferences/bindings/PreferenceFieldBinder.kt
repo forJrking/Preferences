@@ -13,9 +13,11 @@ class PreferenceFieldBinder<T>(
     private val default: T,
     private val key: String?,
     private val caching: Boolean
-) : ReadWriteProperty<PreferencesOwner, T>, Clearable {
+) : ReadWriteProperty<PreferencesOwner, T>, Enhance {
 
     private val atomicCache by lazy { PreferenceAtomicCache<T>(caching) }
+
+    override fun key(property: KProperty<*>) = key ?: "${property.name}Key"
 
     override fun clear(thisRef: PreferencesOwner, property: KProperty<*>) {
         setValue(thisRef, property, default)
@@ -26,7 +28,7 @@ class PreferenceFieldBinder<T>(
     }
 
     override operator fun getValue(thisRef: PreferencesOwner, property: KProperty<*>): T {
-        val key = getKey(key, property)
+        val key = key(property)
         if (!thisRef.preferences.contains(key)) return default
         //缓存开启时候不用读取？除了需要序列化的对象等  其他读取sp也是内存 感觉意义不大  需要测试性能
         return atomicCache.acquire {
@@ -41,10 +43,10 @@ class PreferenceFieldBinder<T>(
     override fun setValue(thisRef: PreferencesOwner, property: KProperty<*>, value: T) {
         atomicCache.incept(value) {
             if (value == default) {
-                thisRef.edit.remove(getKey(key, property))
+                thisRef.edit.remove(key(property))
             } else {
                 thisRef.edit.apply {
-                    putValue(clazz, type, getKey(key, property), value as? Any)
+                    putValue(clazz, type, key(property), value as? Any)
                 }
             }.apply()
         }

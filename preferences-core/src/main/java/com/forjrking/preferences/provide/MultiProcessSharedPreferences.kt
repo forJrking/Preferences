@@ -7,6 +7,7 @@ import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
 import android.os.Bundle
+import android.util.LruCache
 import java.lang.ref.SoftReference
 
 /**
@@ -49,6 +50,16 @@ class MultiProcessSharedPreferences : ContentProvider, SharedPreferences {
     private var mReceiver: BroadcastReceiver? = null
     private var mUriMatcher: UriMatcher? = null
     private var mListenersCount: MutableMap<String, Int?>? = null
+
+    private val mLruCache = object : LruCache<String, SharedPreferences>(3) {
+        override fun create(key: String?): SharedPreferences {
+            val param = key!!.split(";")
+            return compatSharedPreferences(context!!, param[0], param[1])
+        }
+
+        fun getSharedPreferences(name: String, keyAlias: String?) =
+            get("$name;${keyAlias.orEmpty()}")
+    }
 
     constructor()
     private constructor(context: Context, name: String, keyAlias: String? = null) {
@@ -363,43 +374,46 @@ class MultiProcessSharedPreferences : ContentProvider, SharedPreferences {
         when (mUriMatcher!!.match(uri)) {
             GET_ALL -> bundle.putSerializable(
                 KEY,
-                compatSharedPreferences(context!!, name, keyAlias).all as HashMap<String?, *>
+                mLruCache.getSharedPreferences(name, keyAlias).all as HashMap<String?, *>
             )
 
             GET_SET_STRING -> bundle.putSerializable(
                 KEY,
-                compatSharedPreferences(context!!, name, keyAlias).getStringSet(key, emptySet()) as? HashSet<String?>
+                mLruCache.getSharedPreferences(name, keyAlias).getStringSet(
+                    key,
+                    emptySet()
+                ) as? HashSet<String?>
             )
 
             GET_STRING -> bundle.putString(
                 KEY,
-                compatSharedPreferences(context!!, name, keyAlias).getString(key, defValue)
+                mLruCache.getSharedPreferences(name, keyAlias).getString(key, defValue)
             )
 
             GET_INT -> bundle.putInt(
                 KEY,
-                compatSharedPreferences(context!!, name, keyAlias).getInt(key, defValue.toInt())
+                mLruCache.getSharedPreferences(name, keyAlias).getInt(key, defValue.toInt())
             )
 
             GET_LONG -> bundle.putLong(
                 KEY,
-                compatSharedPreferences(context!!, name, keyAlias).getLong(key, defValue.toLong())
+                mLruCache.getSharedPreferences(name, keyAlias).getLong(key, defValue.toLong())
             )
 
             GET_FLOAT -> bundle.putFloat(
                 KEY,
-                compatSharedPreferences(context!!, name, keyAlias).getFloat(key, defValue.toFloat())
+                mLruCache.getSharedPreferences(name, keyAlias).getFloat(key, defValue.toFloat())
             )
 
             GET_BOOLEAN -> bundle.putBoolean(
                 KEY,
-                compatSharedPreferences(context!!, name, keyAlias)
+                mLruCache.getSharedPreferences(name, keyAlias)
                     .getBoolean(key, java.lang.Boolean.parseBoolean(defValue))
             )
 
             CONTAINS -> bundle.putBoolean(
                 KEY,
-                compatSharedPreferences(context!!, name, keyAlias).contains(key)
+                mLruCache.getSharedPreferences(name, keyAlias).contains(key)
             )
 
             REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER -> {
@@ -451,7 +465,7 @@ class MultiProcessSharedPreferences : ContentProvider, SharedPreferences {
         var result = 0
         val name = uri.pathSegments[0]
         val keyAlias = selectionArgs!![0]
-        val preferences = compatSharedPreferences(context!!, name, keyAlias)
+        val preferences = mLruCache.getSharedPreferences(name, keyAlias)
         when (val match = mUriMatcher!!.match(uri)) {
             APPLY, COMMIT -> {
                 val hasListeners =

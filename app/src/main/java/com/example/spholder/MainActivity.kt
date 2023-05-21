@@ -113,14 +113,12 @@ class MainActivity : AppCompatActivity() {
                     write()
                 }
             }
-            println("writeTimeMillis: $writeTimeMillis")
 
             val readTimeMillis = measureTimeMillis {
                 repeat(1000) {
                     read()
                 }
             }
-            println("readTimeMillis: $readTimeMillis")
 
             mainBinding.text.text =
                 "writeTimeMillis: $writeTimeMillis \nreadTimeMillis: $readTimeMillis"

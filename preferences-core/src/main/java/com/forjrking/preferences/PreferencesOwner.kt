@@ -3,7 +3,7 @@ package com.forjrking.preferences
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import com.forjrking.preferences.bindings.Clearable
+import com.forjrking.preferences.bindings.Enhance
 import com.forjrking.preferences.bindings.PreferenceFieldBinder
 import com.forjrking.preferences.provide.createSharedPreferences
 import com.forjrking.preferences.serialize.Serializer
@@ -11,7 +11,6 @@ import com.forjrking.preferences.serialize.TypeToken
 import kotlin.properties.Delegates.notNull
 import kotlin.properties.Delegates.vetoable
 import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
@@ -72,32 +71,24 @@ open class PreferencesOwner(
      *  Function used to clear all SharedPreference and PreferencesOwner data. Useful especially
      *  during tests or when implementing Logout functionality.
      */
-    fun clear(safety: Boolean = true) = forEachDelegate { clear, property ->
-        if (safety && property.name.startsWith("_")) return@forEachDelegate
-        clear.clear(this, property)
+    fun clear(safety: Boolean = true) = forEachDelegate { enhance, property ->
+        if (safety && enhance.key(property).startsWith("_")) return@forEachDelegate
+        enhance.clear(this, property)
     }
 
     /** DES: 清理缓存字段 */
-    fun clearCache() = forEachDelegate { clear, _ ->
-        clear.clearCache()
+    fun clearCache() = forEachDelegate { enhance, _ ->
+        enhance.clearCache()
     }
 
     /**
      * 获取所有key-value 默认根据配置是否加解密决定 mmkv默认必须解密 此功能无效
      * */
     fun getAll(): MutableMap<String, *>? {
-        val receiver = this
-        return if (receiver.isMMKV) {
+        return if (isMMKV) {
             HashMap<String, Any?>().also {
-                val properties = receiver::class.declaredMemberProperties
-                    .filterIsInstance<KProperty1<PreferencesOwner, *>>()
-                for (p in properties) {
-                    val prevAccessible = p.isAccessible
-                    if (!prevAccessible) p.isAccessible = true
-                    p.getDelegate(receiver)?.let { _ ->
-                        it[p.name] = p.get(receiver)
-                    }
-                    p.isAccessible = prevAccessible
+                forEachDelegate { enhance, property ->
+                    it[enhance.key(property)] = property.get(this)
                 }
             }
         } else {
@@ -105,14 +96,14 @@ open class PreferencesOwner(
         }
     }
 
-    private fun forEachDelegate(f: (Clearable, KProperty<*>) -> Unit) {
-        val properties = this::class.declaredMemberProperties
-            .filterIsInstance<KProperty1<SharedPreferences, *>>()
+    private fun forEachDelegate(onEach: (Enhance, KProperty1<PreferencesOwner, *>) -> Unit) {
+        val properties =
+            this::class.declaredMemberProperties.filterIsInstance<KProperty1<PreferencesOwner, *>>()
         for (p in properties) {
             val prevAccessible = p.isAccessible
             if (!prevAccessible) p.isAccessible = true
-            val delegate = p.getDelegate(preferences)
-            if (delegate is Clearable) f(delegate, p)
+            val delegate = p.getDelegate(this)
+            if (delegate is Enhance) onEach(delegate, p)
             p.isAccessible = prevAccessible
         }
     }

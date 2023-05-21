@@ -7,7 +7,6 @@ import com.forjrking.preferences.PreferencesOwner.Companion.serializer
 import com.forjrking.preferences.serialize.TypeToken.Companion.SET_STRING_TYPE
 import java.lang.reflect.Type
 import kotlin.reflect.KClass
-import kotlin.reflect.KProperty
 
 internal fun SharedPreferences.Editor.putValue(
     clazz: KClass<*>, type: Type, key: String, value: Any?
@@ -40,8 +39,6 @@ internal fun SharedPreferences.getValue(
 
     else -> serializer.deserialize(getString(key, null), type) ?: default
 }
-
-internal fun getKey(keySet: String?, property: KProperty<*>) = keySet ?: "${property.name}Key"
 
 /*****获取默认值***/
 internal fun getDefault(clazz: KClass<*>): Any? = when (clazz) {
