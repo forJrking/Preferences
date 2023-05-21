@@ -1,4 +1,4 @@
-package com.example.spholder.test
+package com.example.spholder.daily
 
 import com.example.spholder.bo.DailyReward
 import com.example.spholder.bo.Time
@@ -14,9 +14,6 @@ import java.util.*
  * @version: 1.0.0
  */
 object ObjectTest : PreferencesOwner(null, null, false) {
-
-    var tempStr: String by preferenceBinding("0","temp_${day()}")
-
 
     private fun day(times: Long = System.currentTimeMillis()): String {
         val df = SimpleDateFormat("yyyyMMdd", Locale.US)

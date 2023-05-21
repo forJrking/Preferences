@@ -69,11 +69,11 @@ fun Context.createSharedPreferences(
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-        }
-        return if (isMultiProcess) {
-            MultiProcessSharedPreferences.getSharedPreferences(this, xmlName, cryptKey)
-        } else {
-            compatSharedPreferences(this, xmlName, cryptKey)
+            return if (isMultiProcess) {
+                MultiProcessSharedPreferences.getSharedPreferences(this, xmlName, cryptKey)
+            } else {
+                compatSharedPreferences(this, xmlName, cryptKey)
+            }
         }
     }
 }

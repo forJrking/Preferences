@@ -8,7 +8,6 @@ import android.database.MatrixCursor
 import android.net.Uri
 import android.os.Bundle
 import java.lang.ref.SoftReference
-import java.lang.reflect.InvocationTargetException
 
 /**
  * 使用ContentProvider实现多进程SharedPreferences读写;<br></br>
@@ -41,19 +40,22 @@ import java.lang.reflect.InvocationTargetException
  * @version 1.0
  * @since JDK1.6
  */
-class MultiProcessSharedPreferences private constructor(
-    context: Context,
-    name: String,
-    keyAlias: String? = null
-) : ContentProvider(), SharedPreferences {
-    private var mContext: Context? = context
-    private var mName: String? = name
-    private var mKeyAlias: String? = keyAlias
+class MultiProcessSharedPreferences : ContentProvider, SharedPreferences {
+    private var mContext: Context? = null
+    private var mName: String? = null
+    private var mKeyAlias: String? = null
     private var mIsSafeMode = false
     private var mListeners: MutableList<SoftReference<OnSharedPreferenceChangeListener>>? = null
     private var mReceiver: BroadcastReceiver? = null
     private var mUriMatcher: UriMatcher? = null
     private var mListenersCount: MutableMap<String, Int?>? = null
+
+    constructor()
+    private constructor(context: Context, name: String, keyAlias: String? = null) {
+        mContext = context
+        mName = name
+        mKeyAlias = keyAlias
+    }
 
     private object ReflectionUtil {
         fun contentValuesNewInstance(values: HashMap<String, Any?>?): ContentValues {
@@ -65,51 +67,7 @@ class MultiProcessSharedPreferences private constructor(
                 ) // hide
                 c.isAccessible = true
                 c.newInstance(values)
-            } catch (e: IllegalArgumentException) {
-                throw RuntimeException(e)
-            } catch (e: IllegalAccessException) {
-                throw RuntimeException(e)
-            } catch (e: InvocationTargetException) {
-                throw RuntimeException(e)
-            } catch (e: NoSuchMethodException) {
-                throw RuntimeException(e)
-            } catch (e: InstantiationException) {
-                throw RuntimeException(e)
-            }
-        }
-
-        fun editorPutStringSet(
-            editor: SharedPreferences.Editor,
-            key: String?,
-            values: Set<String?>?
-        ): SharedPreferences.Editor {
-            return try {
-                val method = editor.javaClass.getDeclaredMethod(
-                    "putStringSet", *arrayOf(String::class.java, MutableSet::class.java)
-                ) // Android 3.0
-                method.invoke(editor, key, values) as SharedPreferences.Editor
-            } catch (e: IllegalArgumentException) {
-                throw RuntimeException(e)
-            } catch (e: IllegalAccessException) {
-                throw RuntimeException(e)
-            } catch (e: InvocationTargetException) {
-                throw RuntimeException(e)
-            } catch (e: NoSuchMethodException) {
-                throw RuntimeException(e)
-            }
-        }
-
-        fun editorApply(editor: SharedPreferences.Editor) {
-            try {
-                val method = editor.javaClass.getDeclaredMethod("apply") // Android 2.3
-                method.invoke(editor)
-            } catch (e: IllegalArgumentException) {
-                throw RuntimeException(e)
-            } catch (e: IllegalAccessException) {
-                throw RuntimeException(e)
-            } catch (e: InvocationTargetException) {
-                throw RuntimeException(e)
-            } catch (e: NoSuchMethodException) {
+            } catch (e: Exception) {
                 throw RuntimeException(e)
             }
         }
@@ -143,7 +101,7 @@ class MultiProcessSharedPreferences private constructor(
     // @Override // Android 3.0
     override fun getStringSet(key: String, defValues: Set<String>?): Set<String>? {
         synchronized(this) {
-            val v = getValue(PATH_GET_STRING, key, defValues) as Set<String>?
+            val v = getValue(PATH_GET_SET_STRING, key, defValues) as Set<String>?
             return v ?: defValues
         }
     }
@@ -319,10 +277,7 @@ class MultiProcessSharedPreferences private constructor(
                     val selectionArgs = arrayOf(mKeyAlias, mClear.toString())
                     synchronized(this) {
                         val uri = Uri.withAppendedPath(
-                            Uri.withAppendedPath(
-                                AUTHORITY_URI,
-                                mName
-                            ), pathSegment
+                            Uri.withAppendedPath(AUTHORITY_URI, mName), pathSegment
                         )
                         val values = ReflectionUtil.contentValuesNewInstance(
                             mModified as HashMap<String, Any?>
@@ -372,6 +327,7 @@ class MultiProcessSharedPreferences private constructor(
         checkInitAuthority(context)
         mUriMatcher = UriMatcher(UriMatcher.NO_MATCH).apply {
             addURI(AUTHORITY, PATH_WILDCARD + PATH_GET_ALL, GET_ALL)
+            addURI(AUTHORITY, PATH_WILDCARD + PATH_GET_SET_STRING, GET_SET_STRING)
             addURI(AUTHORITY, PATH_WILDCARD + PATH_GET_STRING, GET_STRING)
             addURI(AUTHORITY, PATH_WILDCARD + PATH_GET_INT, GET_INT)
             addURI(AUTHORITY, PATH_WILDCARD + PATH_GET_LONG, GET_LONG)
@@ -408,6 +364,11 @@ class MultiProcessSharedPreferences private constructor(
             GET_ALL -> bundle.putSerializable(
                 KEY,
                 compatSharedPreferences(context!!, name, keyAlias).all as HashMap<String?, *>
+            )
+
+            GET_SET_STRING -> bundle.putSerializable(
+                KEY,
+                compatSharedPreferences(context!!, name, keyAlias).getStringSet(key, emptySet()) as? HashSet<String?>
             )
 
             GET_STRING -> bundle.putString(
@@ -531,10 +492,9 @@ class MultiProcessSharedPreferences private constructor(
                         }
 
                         is Set<*> -> {
-                            ReflectionUtil.editorPutStringSet(
-                                editor, k,
-                                v as Set<String?>
-                            ) // Android 3.0
+                            editor.putStringSet(
+                                k, v as Set<String?>
+                            )
                         }
 
                         is Int -> {
@@ -559,7 +519,7 @@ class MultiProcessSharedPreferences private constructor(
                 } else {
                     when (match) {
                         APPLY -> {
-                            ReflectionUtil.editorApply(editor) // Android 2.3
+                            editor.apply()
                             result = 1
                             // Okay to notify the listeners before it's hit disk
                             // because the listeners should always get the same
@@ -635,6 +595,7 @@ class MultiProcessSharedPreferences private constructor(
         private const val KEY_NAME = "name"
         private const val PATH_WILDCARD = "*/"
         private const val PATH_GET_ALL = "getAll"
+        private const val PATH_GET_SET_STRING = "getStringSet"
         private const val PATH_GET_STRING = "getString"
         private const val PATH_GET_INT = "getInt"
         private const val PATH_GET_LONG = "getLong"
@@ -647,7 +608,8 @@ class MultiProcessSharedPreferences private constructor(
             "registerOnSharedPreferenceChangeListener"
         private const val PATH_UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER =
             "unregisterOnSharedPreferenceChangeListener"
-        private const val GET_ALL = 1
+        private const val GET_ALL = 0
+        private const val GET_SET_STRING = 1
         private const val GET_STRING = 2
         private const val GET_INT = 3
         private const val GET_LONG = 4

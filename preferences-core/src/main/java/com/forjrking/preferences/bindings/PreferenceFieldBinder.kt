@@ -41,12 +41,12 @@ class PreferenceFieldBinder<T>(
     override fun setValue(thisRef: PreferencesOwner, property: KProperty<*>, value: T) {
         atomicCache.incept(value) {
             if (value == default) {
-                thisRef.edit.remove(getKey(key, property)).apply()
+                thisRef.edit.remove(getKey(key, property))
             } else {
                 thisRef.edit.apply {
-                    putValue(clazz, getKey(key, property), value as? Any)
-                }.apply()
-            }
+                    putValue(clazz, type, getKey(key, property), value as? Any)
+                }
+            }.apply()
         }
     }
 }

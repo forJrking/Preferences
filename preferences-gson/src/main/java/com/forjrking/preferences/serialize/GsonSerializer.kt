@@ -12,13 +12,14 @@ class GsonSerializerInitializer : Initializer<Unit> {
     private val gson by lazy { GsonBuilder().serializeNulls().create() }
 
     override fun create(context: Context) {
+        PreferencesOwner.context = context.applicationContext
         PreferencesOwner.serializer = GsonSerializer(gson)
     }
 
     override fun dependencies() = emptyList<Class<Initializer<*>>>()
 }
 
-private class GsonSerializer(private val gson: Gson) : Serializer {
+class GsonSerializer(private val gson: Gson) : Serializer {
 
     override fun serialize(toSerialize: Any?): String? = gson.toJson(toSerialize)
 

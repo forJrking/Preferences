@@ -5,153 +5,128 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKeys
-import com.example.spholder.bo.Game
 import com.example.spholder.daily.TestActivity
 import com.example.spholder.databinding.ActivityMainBinding
-import com.example.spholder.test.TestCryptSP
-import com.example.spholder.test.TestMultiSP
-import com.example.spholder.test.TestSP
-import com.example.spholder.test.TestmmkvSP
+import com.example.spholder.test.*
 import com.forjrking.activity.library.launch4Result
 import com.forjrking.preferences.PreferencesOwner
-import com.tencent.mmkv.MMKV
 import kotlin.system.measureTimeMillis
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        private var testCase: TestCase? = null
+        private var preferencesOwner: PreferencesOwner? = null
+        fun write() = testCase?.apply {
+            intCase = 100
+            longCase = 101L
+            floatCase = 102F
+            booleanCase = false
+            stringCase = "123ABC-:/><;\"!##$%^&*"
+            objCase = testObj.copy(numberId = 101, datas = null)
+            setStringCase = setOf("NOT NULL")
+            setObjCase = setOf(testObj.copy(numberId = 102, datas = null))
+            setStringNullableCase = setOf("NULLABLE")
+            setObjNullableCase = setOf(testObj.copy(numberId = 103, datas = null))
+        }
+
+        fun read(): String {
+            return testCase?.run {
+                StringBuffer()
+                    .append("intCase:$intCase").appendLine()
+                    .append("floatCase:$floatCase").appendLine()
+                    .append("longCase:$longCase").appendLine()
+                    .append("booleanCase:$booleanCase").appendLine()
+                    .append("stringCase:$stringCase").appendLine()
+                    .append("objCase:$objCase").appendLine()
+                    .append("setStringCase:$setStringCase").appendLine()
+                    .append("setObjCase:$setObjCase").appendLine()
+                    .append("setStringNullableCase:$setStringNullableCase").appendLine()
+                    .append("setObjNullableCase:$setObjNullableCase").appendLine().toString()
+            } ?: ""
+        }
+    }
+
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
-        MMKV.initialize(this)
-        PreferencesOwner.context = this.application
         super.onCreate(savedInstanceState)
         val mainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainBinding.root)
+        mainBinding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val sp = when (resources.getStringArray(R.array.enum_array)[position]) {
+                    "SP-Normal" -> TestSP
+                    "SP-Crypt" -> TestCryptSP
+                    "SP-Multi" -> TestMultiSP
+                    "MMKV-Normal" -> TestMMKV
+                    "MMKV-Crypt" -> TestCryptMMKV
+                    "MMKV-Multi" -> TestMultiMMKV
+                    else -> TODO("not support")
+                }
+                testCase = sp
+                preferencesOwner = sp
+                preferencesOwner?.clearCache()
+                preferencesOwner?.clear()
+                mainBinding.text.apply {
+                    text = "=======${sp::class.java.name}=======\n"
+                    append(read())
+                }
+                write()
+                mainBinding.text.apply {
+                    append("========Override========\n")
+                    append(read())
+                }
+            }
 
-        mainBinding.spBtn.setOnClickListener {
-            val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-            val sharedPreferences = EncryptedSharedPreferences.create(
-                "my_secure_prefs",
-                masterKeyAlias,
-                this@MainActivity,
-                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-            )
-            val editor = sharedPreferences.edit()
-            editor.putString("secret_data", "this is a secret message")
-            editor.apply()
+            override fun onNothingSelected(parent: AdapterView<*>?) {
 
-            TestCryptSP.testStr.log()
-            TestCryptSP.testObj.log()
-            ////////////////////////////普通测试///////////////////////////
-            TestCryptSP.testStr = "testStr"
-            TestCryptSP.testStr.log()
-//            ////////////////////////////序列化测试///////////////////////////
-//            TestSP.clearCache()
-//            var game = Game(1, "multi", mutableListOf())
-//            TestSP.game = game
-//            game = TestSP.game!!
-//            game.log()
-//            game.numberId = 2
-//            TestSP.game = game
-//            TestSP.game.log()
-//            ObjectTest.clearCache()
-//            val dailyReward = ObjectTest.taskDailyReward
-//            dailyReward.log()
-//            ObjectTest.taskDailyReward = dailyReward
-//            dailyReward.forEach {
-//                it.isClmiaed = true
-//            }
-//            ObjectTest.taskDailyReward = dailyReward
-//            ObjectTest.taskDailyReward.log()
-            //加密测试
-
-//            TestCryptSP.testStr.log()
-//            TestCryptSP.testLong.log()
-//            TestCryptSP.game.log()
-//            ////////////////////////////普通测试///////////////////////////
-//            TestCryptSP.testStr = "testStr"
-//            TestCryptSP._testStr2 = "_testStr2222"
-//            TestCryptSP.testLong = 100232L
-//            ////////////////////////////序列化测试///////////////////////////
-//            TestCryptSP.game = Game(1, "sadasdsada", mutableListOf())
-//
-//            TestCryptSP.testStr.log()
-//            TestCryptSP._testStr2.log()
-//            TestCryptSP.testLong.log()
-//            TestCryptSP.game.log()
-//
-//            TestCryptSP.getAll()?.forEach {
-//                Log.d("MainActivity", "TestCryptSP ->name:${it.key} value:${it.value}")
-//            }
-//            TestCryptSP.clear()
-//            TestCryptSP.getAll()?.forEach {
-//                Log.d("MainActivity", "TestCryptSP ->name:${it.key} value:${it.value}")
-//            }
-        }
-
-        mainBinding.mmkvBtn.setOnClickListener {
-            TestmmkvSP.testStr.log()
-            TestmmkvSP.testNumber.log()
-
-            TestmmkvSP.testStr = "mmkv test"
-            TestmmkvSP.testNumber = 2000323
-            TestmmkvSP.testStr.log()
-            TestmmkvSP.testNumber.log()
+            }
         }
 
         mainBinding.processBtn.setOnClickListener {
-            TestmmkvSP.testStr = "multi Process jump"
-            TestmmkvSP.testNumber = 2998888
-
-            TestMultiSP.testStr = "multi testStr"
-            TestMultiSP.testLong = 199999L
-            ////////////////////////////序列化测试///////////////////////////
-            TestMultiSP.game = Game(91, "multistring", mutableListOf())
-            TestMultiSP.getAll()?.forEach {
-                Log.d("PreferenceHolder", "TestMultiSP ->name:${it.key} value:${it.value}")
+            preferencesOwner?.getAll()?.forEach {
+                Log.d("MainActivity", "-> name:${it.key} -> value:${it.value}")
             }
-
-            TestMultiSP.testProcess = "main"
-            TestmmkvSP.testProcess = "main"
             val intent = Intent(this@MainActivity, TestActivity::class.java)
             this.launch4Result(intent, 201) { requestCode, resultCode, data ->
                 when (resultCode) {
                     Activity.RESULT_OK -> {
-                        mainBinding.text.text =
-                            "SP:${TestMultiSP.testProcess}, MMKV:${TestmmkvSP.testProcess}"
+                        mainBinding.text.text = read()
                     }
 
                     else -> Unit
                 }
-                TestMultiSP.testProcess?.log()
-                TestmmkvSP.testProcess?.log()
             }
         }
         mainBinding.benchMarkBtn.setOnClickListener {
             /////////////////////////////性能测试///////////////////////
             val writeTimeMillis = measureTimeMillis {
                 repeat(1000) {
-                    TestSP.testStr = "BXE$it"
+                    write()
                 }
             }
             println("writeTimeMillis: $writeTimeMillis")
 
             val readTimeMillis = measureTimeMillis {
                 repeat(1000) {
-                    val sp = TestSP.testStr
-                    val temp = sp
+                    read()
                 }
             }
             println("readTimeMillis: $readTimeMillis")
 
             mainBinding.text.text =
                 "writeTimeMillis: $writeTimeMillis \nreadTimeMillis: $readTimeMillis"
+            preferencesOwner?.getAll()?.forEach {
+                Log.d("MainActivity", "-> name:${it.key} -> value:${it.value}")
+            }
         }
     }
-}
-
-fun Any?.log() {
-    Log.w("MainActivity", "$this")
 }

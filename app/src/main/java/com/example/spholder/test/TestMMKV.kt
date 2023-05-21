@@ -3,13 +3,7 @@ package com.example.spholder.test
 import com.example.spholder.bo.Game
 import com.forjrking.preferences.PreferencesOwner
 
-/**
- * @description:
- * @author: 岛主
- * @date: 2020/7/2 10:48
- * @version: 1.0.0
- */
-object TestSP : PreferencesOwner("sp-normal"), TestCase {
+object TestMMKV : PreferencesOwner(isMMKV = true), TestCase {
 
     override var intCase: Int by preferenceBinding(0)
 
@@ -32,7 +26,7 @@ object TestSP : PreferencesOwner("sp-normal"), TestCase {
     override var setObjNullableCase: Set<Game>? by preferenceNullableBinding()
 }
 
-object TestCryptSP : PreferencesOwner(cryptKey = "123456"), TestCase {
+object TestCryptMMKV : PreferencesOwner(cryptKey = "123456", isMMKV = true), TestCase {
 
     override var intCase: Int by preferenceBinding(0)
 
@@ -55,7 +49,7 @@ object TestCryptSP : PreferencesOwner(cryptKey = "123456"), TestCase {
     override var setObjNullableCase: Set<Game>? by preferenceNullableBinding()
 }
 
-object TestMultiSP : PreferencesOwner(isMultiProcess = true), TestCase {
+object TestMultiMMKV : PreferencesOwner(isMMKV = true, isMultiProcess = true), TestCase {
 
     override var intCase: Int by preferenceBinding(0)
 

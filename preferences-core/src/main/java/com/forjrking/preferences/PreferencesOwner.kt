@@ -1,6 +1,7 @@
 package com.forjrking.preferences
 
 import android.app.Application
+import android.content.Context
 import android.content.SharedPreferences
 import com.forjrking.preferences.bindings.Clearable
 import com.forjrking.preferences.bindings.PreferenceFieldBinder
@@ -8,6 +9,7 @@ import com.forjrking.preferences.provide.createSharedPreferences
 import com.forjrking.preferences.serialize.Serializer
 import com.forjrking.preferences.serialize.TypeToken
 import kotlin.properties.Delegates.notNull
+import kotlin.properties.Delegates.vetoable
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
@@ -30,15 +32,12 @@ open class PreferencesOwner(
 ) {
 
     val preferences: SharedPreferences by lazy {
-        if (!isInitialized()) {
-            throw IllegalStateException("PreferenceHolder is not initialed")
-        }
-        context.createSharedPreferences(
+        context?.createSharedPreferences(
             name ?: this::class.qualifiedName,
             cryptKey,
             isMultiProcess,
             isMMKV
-        )
+        ) ?: throw IllegalStateException("context is not initialized or applicationContext")
     }
 
     /** DES: 减小edit实例化时候集合多次创建开销 */
@@ -70,7 +69,7 @@ open class PreferencesOwner(
     )
 
     /**
-     *  Function used to clear all SharedPreference and PreferenceHolder data. Useful especially
+     *  Function used to clear all SharedPreference and PreferencesOwner data. Useful especially
      *  during tests or when implementing Logout functionality.
      */
     fun clear(safety: Boolean = true) = forEachDelegate { clear, property ->
@@ -119,11 +118,10 @@ open class PreferencesOwner(
     }
 
     companion object {
-        /** DES: 为了防止内存泄漏 */
-        lateinit var context: Application
-
-        /** DES: isInitialized 放到伴生对象外面会报错。。。 */
-        fun isInitialized(): Boolean = ::context.isInitialized
+        /** DES: 为了防止内存泄漏 请务必使用Application*/
+        var context: Context? by vetoable(null) { _, _, newValue ->
+            newValue is Application
+        }
 
         /** DES: 序列化接口 */
         var serializer: Serializer by notNull()

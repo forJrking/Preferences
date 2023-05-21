@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">SPHolder</string>
+    <string-array name="enum_array">
+        <item>SP-Normal</item>
+        <item>SP-Crypt</item>
+        <item>SP-Multi</item>
+        <item>MMKV-Normal</item>
+        <item>MMKV-Crypt</item>
+        <item>MMKV-Multi</item>
+    </string-array>
 </resources>

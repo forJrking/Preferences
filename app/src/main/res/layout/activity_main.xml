@@ -17,51 +17,36 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
-    <Button
-        android:id="@+id/spBtn"
+    <Spinner
+        android:id="@+id/spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="SP"
+        android:layout_marginBottom="20dp"
+        android:entries="@array/enum_array"
         android:textAllCaps="false"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text" />
-
-    <Button
-        android:id="@+id/mmkvBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="MMKV"
-        android:textAllCaps="false"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintLeft_toRightOf="@+id/spBtn"
-        app:layout_constraintRight_toLeftOf="@+id/processBtn"
-        app:layout_constraintTop_toBottomOf="@+id/text" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent" />
 
     <Button
         android:id="@+id/processBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
         android:text="MultiProcess"
         android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="@+id/spinner"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintLeft_toRightOf="@+id/mmkvBtn"
+        app:layout_constraintLeft_toRightOf="@+id/spinner"
         app:layout_constraintRight_toLeftOf="@+id/benchMarkBtn"
-        app:layout_constraintTop_toBottomOf="@+id/text" />
+        app:layout_constraintTop_toTopOf="@+id/spinner" />
 
     <Button
         android:id="@+id/benchMarkBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
         android:text="BenchMark"
         android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="@+id/processBtn"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text" />
+        app:layout_constraintRight_toRightOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
