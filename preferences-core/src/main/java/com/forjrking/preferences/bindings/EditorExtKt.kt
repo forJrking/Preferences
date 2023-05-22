@@ -4,7 +4,7 @@ package com.forjrking.preferences.bindings
 
 import android.content.SharedPreferences
 import com.forjrking.preferences.PreferencesOwner.Companion.serializer
-import com.forjrking.preferences.serialize.TypeToken.Companion.SET_STRING_TYPE
+import com.forjrking.preferences.serialize.TypeToken
 import java.lang.reflect.Type
 import kotlin.reflect.KClass
 
@@ -17,7 +17,7 @@ internal fun SharedPreferences.Editor.putValue(
     Boolean::class -> putBoolean(key, value as Boolean)
     String::class -> putString(key, value as String?)
     Set::class -> when (type.toString()) {
-        SET_STRING_TYPE -> putStringSet(key, value as Set<String>?)
+        TypeToken.SET_STRING_TYPE -> putStringSet(key, value as Set<String>?)
         else -> putString(key, serializer.serialize(value))
     }
 
@@ -33,19 +33,9 @@ internal fun SharedPreferences.getValue(
     Boolean::class -> getBoolean(key, default as Boolean)
     String::class -> getString(key, default as? String)
     Set::class -> when (type.toString()) {
-        SET_STRING_TYPE -> getStringSet(key, default as Set<String>?)
+        TypeToken.SET_STRING_TYPE -> getStringSet(key, default as Set<String>?)
         else -> serializer.deserialize(getString(key, null), type) ?: default
     }
 
     else -> serializer.deserialize(getString(key, null), type) ?: default
-}
-
-/*****获取默认值***/
-internal fun getDefault(clazz: KClass<*>): Any? = when (clazz) {
-    Int::class -> 0
-    Long::class -> 0L
-    Float::class -> 0.0F
-    Boolean::class -> false
-    Set::class -> emptySet<String>()
-    else -> null
 }

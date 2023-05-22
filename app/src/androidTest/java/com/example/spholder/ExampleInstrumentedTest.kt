@@ -31,14 +31,14 @@ class ExampleInstrumentedTest {
             val writeTimeMillis = measureTimeMillis {
                 repeat(1000) {
                     val append = "AR:$it"
-                    UTTestSP.stringNoCache = append
+                    UTTestSP.stringCache = append
                 }
             }
             println("set Time: $writeTimeMillis")
 
             val readTimeMillis = measureTimeMillis {
                 repeat(1000) {
-                    val case = UTTestSP.stringNoCache
+                    val case = UTTestSP.stringCache
                     val temp = case
                 }
             }

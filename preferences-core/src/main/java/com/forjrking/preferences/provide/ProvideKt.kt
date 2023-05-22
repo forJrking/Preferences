@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 @JvmOverloads
 @SuppressLint("PrivateApi")
 @Suppress("UNCHECKED_CAST")
-fun Context.createSharedPreferences(
+internal fun Context.createSharedPreferences(
     name: String? = null,
     cryptKey: String? = null,
     isMultiProcess: Boolean = false,
@@ -86,18 +86,22 @@ internal fun compatSharedPreferences(
     return if (keyAlias.isNullOrEmpty()) {
         context.getSharedPreferences(name, Context.MODE_PRIVATE)
     } else {
-        val buildAES256GCMKeyGenParameterSpec = KeyGenParameterSpec.Builder(
-            keyAlias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-        ).setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-            .setKeySize(256)
-            .build()
-        androidx.security.crypto.EncryptedSharedPreferences.create(
-            name,
-            androidx.security.crypto.MasterKeys.getOrCreate(buildAES256GCMKeyGenParameterSpec),
-            context,
-            androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val buildAES256GCMKeyGenParameterSpec = KeyGenParameterSpec.Builder(
+                keyAlias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+            ).setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setKeySize(256)
+                .build()
+            androidx.security.crypto.EncryptedSharedPreferences.create(
+                name,
+                androidx.security.crypto.MasterKeys.getOrCreate(buildAES256GCMKeyGenParameterSpec),
+                context,
+                androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } else {
+            TODO("crypto must >= M")
+        }
     }
 }

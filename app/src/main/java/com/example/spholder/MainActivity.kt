@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 
         fun read(): String {
             return testCase?.run {
-                StringBuffer()
+                StringBuilder()
                     .append("intCase:$intCase").appendLine()
                     .append("floatCase:$floatCase").appendLine()
                     .append("longCase:$longCase").appendLine()

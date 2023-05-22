@@ -31,7 +31,7 @@ class PreferenceFieldBinder<T>(
         //缓存开启时候不用读取？除了需要序列化的对象等  其他读取sp也是内存 感觉意义不大  需要测试性能
         return cache.acquire {
             if (default == null) {
-                thisRef.preferences.getValue(clazz, type, key, getDefault(clazz))
+                thisRef.preferences.getValue(clazz, type, key, clazz.defaultValue)
             } else {
                 thisRef.preferences.getValue(clazz, type, key, default)
             } as T

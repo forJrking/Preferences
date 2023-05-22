@@ -9,8 +9,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.spholder"
-//        minSdk = libs.versions.minSdk.get().toInt()
-        minSdk = 23
+        minSdk = libs.versions.minSdk.get().toInt()
+//        minSdk = 23
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
@@ -57,7 +57,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.lifecycle.runtime)
-    implementation(libs.androidx.security)
+//    implementation(libs.androidx.security)
     implementation(project("path" to ":preferences-core"))
     implementation(project("path" to ":preferences-gson"))
     implementation(project("path" to ":preferences-ktx"))

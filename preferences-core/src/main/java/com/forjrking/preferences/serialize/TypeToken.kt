@@ -103,6 +103,8 @@ open class TypeToken<T> protected constructor() {
 
     companion object {
 
+        val UNIT_TYPE = object : TypeToken<Unit>() {}.type
+
         internal val EMPTY_TYPE_ARRAY = arrayOf<Type>()
 
         internal val SET_STRING_TYPE by lazy { object : TypeToken<Set<String>>() {}.type.toString() }

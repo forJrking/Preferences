@@ -38,6 +38,7 @@ dependencies {
     compileOnly libs.mmkv
     compileOnly libs.androidx.security
     testImplementation libs.junit4
+    testImplementation libs.mockito.kotlin
 }
 
 afterEvaluate {

@@ -5,10 +5,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.forjrking.preferences.bindings.Enhance
 import com.forjrking.preferences.bindings.PreferenceFieldBinder
+import com.forjrking.preferences.bindings.type
 import com.forjrking.preferences.cache.AtomicCache
 import com.forjrking.preferences.provide.createSharedPreferences
 import com.forjrking.preferences.serialize.Serializer
-import com.forjrking.preferences.serialize.TypeToken
 import kotlin.properties.Delegates.notNull
 import kotlin.properties.Delegates.vetoable
 import kotlin.properties.ReadWriteProperty
@@ -16,13 +16,12 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
 
-/***
- *SharedPreferences使用可以配合mmkv
+/**
+ * SharedPreferences使用可以配合mmkv 当出现获取值始终不是期望的时候,请优先考虑关闭缓存.
  * @param name xml名称 this::class.java.simpleName 如果使用包名不同,类字段相同会覆盖值
- * @param cryptKey 加密密钥  ｛原生sp多进程不支持加密 ｝
+ * @param cryptKey 加密密钥
  * @param isMMKV  是否使用mmkv
  * @param isMultiProcess 是否使用多进程. 建议mmkv搭配使用, MultiProcessSp性能很差, 另外多进程默认关闭缓存
- * 1. 当出现获取值始终不是期望的时候,请优先考虑关闭缓存.
  */
 open class PreferencesOwner(
     private val name: String? = null,
@@ -52,7 +51,7 @@ open class PreferencesOwner(
         default: T, key: String? = null, caching: Boolean = !isMultiProcess
     ): ReadWriteProperty<PreferencesOwner, T> = PreferenceFieldBinder(
         clazz = T::class,
-        type = object : TypeToken<T>() {}.type,
+        type = type<T>(),
         default = default,
         key = key,
         cache = AtomicCache(caching)
@@ -62,13 +61,14 @@ open class PreferencesOwner(
         key: String? = null, caching: Boolean = !isMultiProcess
     ): ReadWriteProperty<PreferencesOwner, T?> = PreferenceFieldBinder(
         clazz = T::class,
-        type = object : TypeToken<T>() {}.type,
+        type = type<T>(),
         default = null,
         key = key,
         cache = AtomicCache(caching)
     )
 
     /**
+     *  当你有重要数据要保留的时候请开头命名为: _'key'
      *  Function used to clear all SharedPreference and PreferencesOwner data. Useful especially
      *  during tests or when implementing Logout functionality.
      */
@@ -101,8 +101,7 @@ open class PreferencesOwner(
     }
 
     private fun forEachDelegate(onEach: (Enhance, KProperty1<PreferencesOwner, *>) -> Unit) {
-        val properties =
-            this::class.declaredMemberProperties.filterIsInstance<KProperty1<PreferencesOwner, *>>()
+        val properties = this::class.declaredMemberProperties.filterIsInstance<KProperty1<PreferencesOwner, *>>()
         for (p in properties) {
             val prevAccessible = p.isAccessible
             if (!prevAccessible) p.isAccessible = true
