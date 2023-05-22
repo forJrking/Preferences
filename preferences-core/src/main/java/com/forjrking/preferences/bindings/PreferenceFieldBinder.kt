@@ -43,9 +43,7 @@ class PreferenceFieldBinder<T>(
             if (value == default) {
                 thisRef.edit.remove(key(property))
             } else {
-                thisRef.edit.apply {
-                    putValue(clazz, type, key(property), value as? Any)
-                }
+                thisRef.edit.putValue(clazz, type, key(property), value as? Any)
             }.apply()
         }
     }

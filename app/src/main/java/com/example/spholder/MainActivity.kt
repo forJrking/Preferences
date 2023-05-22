@@ -3,6 +3,7 @@ package com.example.spholder
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -15,7 +16,7 @@ import com.forjrking.activity.library.launch4Result
 import com.forjrking.preferences.PreferencesOwner
 import kotlin.system.measureTimeMillis
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     companion object {
         private var testCase: TestCase? = null
@@ -126,5 +127,9 @@ class MainActivity : AppCompatActivity() {
                 Log.d("MainActivity", "-> name:${it.key} -> value:${it.value}")
             }
         }
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        Log.d("MainActivity", "onSharedPreferenceChanged-> name:${key}")
     }
 }
