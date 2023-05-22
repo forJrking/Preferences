@@ -13,7 +13,6 @@ import com.example.spholder.R
 import com.example.spholder.bo.DailyReward
 import com.example.spholder.daily.util.DataUtil
 import com.example.spholder.daily.util.toTime
-import com.example.spholder.test.ObjectTest
 
 /**
  * @description:

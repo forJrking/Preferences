@@ -15,6 +15,8 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "preferences-ktx"
+rootProject.name = "preferences"
 include(":app")
-include(":preferences")
+include(":preferences-core")
+include(":preferences-gson")
+include(":preferences-ktx")

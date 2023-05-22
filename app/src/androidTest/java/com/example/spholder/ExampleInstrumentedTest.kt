@@ -3,11 +3,12 @@ package com.example.spholder
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.spholder.test.TestSP
+import com.forjrking.preferences.PreferencesOwner
 import java.util.*
-import java.util.concurrent.TimeUnit
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.system.measureTimeMillis
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -26,26 +27,32 @@ class ExampleInstrumentedTest {
 
     @Test
     fun benchmark() {
+        repeat(3) {
+            val writeTimeMillis = measureTimeMillis {
+                repeat(1000) {
+                    val append = "AR:$it"
+                    UTTestSP.stringCache = append
+                }
+            }
+            println("set Time: $writeTimeMillis")
 
-        val s1 = System.nanoTime()
-        repeat(1) {
-            TestSP.testStr = "AAAXXEEEE0${Random().nextInt(it)}"
+            val readTimeMillis = measureTimeMillis {
+                repeat(1000) {
+                    val case = UTTestSP.stringCache
+                    val temp = case
+                }
+            }
+            println("get Time: $readTimeMillis")
         }
-        val s2 = System.nanoTime()
-        println("set Time: ${TimeUnit.NANOSECONDS.toMillis(s2 - s1)}")
-
-        repeat(1) {
-            val s = TestSP.testStr
-        }
-        val s3 = System.nanoTime()
-        println("get Time: ${TimeUnit.NANOSECONDS.toMillis(s3 - s2)}")
     }
 
     @Test
     fun benchmarkForSpNormal() {
-        TestSP.testStr.log()
-        TestSP.testObj.log()
-        TestSP.testStr = "testStr"
-        TestSP.testStr.log()
+        TestSP.stringCase = "testStr"
     }
+}
+
+object UTTestSP : PreferencesOwner("sp-normal") {
+    var stringCache: String by preferenceBinding("A", caching = true)
+    var stringNoCache: String by preferenceBinding("A", caching = false)
 }
