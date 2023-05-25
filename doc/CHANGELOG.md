@@ -6,10 +6,8 @@
 ### Fix
 
 ### TODO
-- 多进程不能正常获取最新Value
 - default 擦除数据安全性, 如果binding的default和修改后的value还是同一个对象仍然无法写入
 - 使用AndroidKeyStore来实现AES加密(M+), 加密接口自定义支持  可以借助AI chatgpt
-- preferences androidx 实现性能评估
 
 ## UnRelease 2.1.0
 
