@@ -27,6 +27,7 @@ android {
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -61,6 +62,9 @@ dependencies {
     implementation(project("path" to ":preferences-core"))
     implementation(project("path" to ":preferences-gson"))
     implementation(project("path" to ":preferences-ktx"))
+//    implementation("com.github.forJrking.Preferences:pref-ktx:2.0.0")
+//    implementation("com.github.forJrking.Preferences:pref-gson:2.0.0")
+//    implementation("com.github.forJrking.Preferences:pref-core:2.0.0")
     implementation("com.github.forJrking:StartActivity4Rt:1.0.0")
     testImplementation(libs.junit4)
     androidTestImplementation(libs.espresso.core)

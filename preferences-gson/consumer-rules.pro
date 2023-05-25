@@ -1,0 +1,1 @@
+-keep class com.forjrking.preferences.serialize.GsonSerializerInitializer {*;}
