@@ -1,5 +1,6 @@
 package com.example.spholder
 
+import com.example.spholder.test.TestSP
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -13,5 +14,12 @@ class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
+    }
+
+    @Test
+    fun testString() {
+        val qualifiedName = TestSP::class.simpleName?.lowercase()
+        val str = qualifiedName?.split(".", limit = 2)
+        println("======================= $str ==========================")
     }
 }

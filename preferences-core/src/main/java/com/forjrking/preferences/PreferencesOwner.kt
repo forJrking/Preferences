@@ -32,10 +32,10 @@ open class PreferencesOwner(
 
     val preferences: SharedPreferences by lazy {
         context?.createSharedPreferences(
-            name ?: this::class.qualifiedName,
-            cryptKey,
-            isMultiProcess,
-            isMMKV
+            name = name ?: this::class.simpleName?.lowercase(),
+            cryptKey = cryptKey,
+            isMMKV = isMMKV,
+            isMultiProcess = isMultiProcess
         ) ?: throw IllegalStateException("context is not initialized or applicationContext")
     }
 
