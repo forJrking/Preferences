@@ -1,8 +1,7 @@
 package com.forjrking.preferences.bindings
 
 import android.content.SharedPreferences
-import com.forjrking.preferences.serialize.TypeToken
-import com.forjrking.preferences.serialize.TypeToken.Companion.UNIT_TYPE
+import com.forjrking.preferences.serialize.TypeToken.Companion.typeOf
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -17,6 +16,8 @@ import org.mockito.kotlin.mock
  * @date: 2023/5/22 15:46
  */
 internal class EditorExtKtKtTest {
+
+    private val UNIT_TYPE = typeOf<Unit>().javaType
 
     private lateinit var mockSP: SharedPreferences
 
@@ -58,9 +59,13 @@ internal class EditorExtKtKtTest {
 
     @Test
     fun getValueObj() {
-        var value = mockSP.getValue(Set::class, object : TypeToken<Set<String>>() {}.type, key, null)
+        val value = mockSP.getValue(Set::class, typeOf<Set<String>>().javaType, key, null)
         assertEquals(null, value)
-        value = mockSP.getValue(Set::class, object : TypeToken<Set<Long>>() {}.type, key, null)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun `getValueObj not support`() {
+        val value = mockSP.getValue(Set::class, typeOf<Set<Long>>().javaType, key, null)
         assertEquals(null, value)
     }
 }

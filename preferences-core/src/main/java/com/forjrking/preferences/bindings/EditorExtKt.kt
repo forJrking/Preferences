@@ -4,9 +4,11 @@ package com.forjrking.preferences.bindings
 
 import android.content.SharedPreferences
 import com.forjrking.preferences.PreferencesOwner.Companion.serializer
-import com.forjrking.preferences.serialize.TypeToken
+import com.forjrking.preferences.serialize.TypeToken.Companion.typeOf
 import java.lang.reflect.Type
 import kotlin.reflect.KClass
+
+private val TYPE_SET_STRING by lazy { typeOf<Set<String>>().javaType.toString() }
 
 internal fun SharedPreferences.Editor.putValue(
     clazz: KClass<*>, type: Type, key: String, value: Any?
@@ -17,7 +19,7 @@ internal fun SharedPreferences.Editor.putValue(
     Boolean::class -> putBoolean(key, value as Boolean)
     String::class -> putString(key, value as String?)
     Set::class -> when (type.toString()) {
-        TypeToken.SET_STRING_TYPE -> putStringSet(key, value as Set<String>?)
+        TYPE_SET_STRING -> putStringSet(key, value as Set<String>?)
         else -> putString(key, serializer.serialize(value))
     }
 
@@ -33,7 +35,7 @@ internal fun SharedPreferences.getValue(
     Boolean::class -> getBoolean(key, default as Boolean)
     String::class -> getString(key, default as? String)
     Set::class -> when (type.toString()) {
-        TypeToken.SET_STRING_TYPE -> getStringSet(key, default as Set<String>?)
+        TYPE_SET_STRING -> getStringSet(key, default as Set<String>?)
         else -> serializer.deserialize(getString(key, null), type) ?: default
     }
 

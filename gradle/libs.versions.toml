@@ -29,9 +29,13 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-ve
 [bundles]
 compose = ["compose-activity", "compose-tooling", "compose-preview"]
 compose-uitesting = ["compose-ui-test-manifest", "compose-ui-test-junit4"]
+pref = ["pref-core", "pref-gson", "pref-ktx"]
 
 [libraries]
 retrofit = "com.squareup.retrofit2:retrofit:2.9.0"
+pref-ktx = { group = "com.github.forJrking.Preferences", name = "pref-ktx", version.ref = "preference-version" }
+pref-gson = { group = "com.github.forJrking.Preferences", name = "pref-gson", version.ref = "preference-version" }
+pref-core = { group = "com.github.forJrking.Preferences", name = "pref-core", version.ref = "preference-version" }
 mmkv = { group = "com.tencent", name = "mmkv-static", version.ref = "mmkv-version" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson-version" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin-version" }

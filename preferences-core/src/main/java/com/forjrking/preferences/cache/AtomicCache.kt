@@ -8,7 +8,8 @@ import java.util.concurrent.atomic.AtomicReference
  * @author: forjrking
  * @date: 2023/5/20 10:36 PM
  */
-class AtomicCache<T>(private val caching: Boolean) : Cache<T> {
+@PublishedApi
+internal class AtomicCache<T>(private val caching: Boolean) : Cache<T> {
 
     private val atomicCache = AtomicReference<T>()
 

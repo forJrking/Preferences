@@ -10,12 +10,13 @@ import java.lang.reflect.WildcardType
 open class TypeToken<T> protected constructor() {
 
     private val superclass = javaClass.genericSuperclass as ParameterizedType
-    val type: Type = canonicalize(superclass.actualTypeArguments[0])
+
+    val javaType: Type = canonicalize(superclass.actualTypeArguments[0])
 
     private class ParameterizedTypeImpl(
         ownerType: Type?,
         rawType: Type,
-        vararg typeArguments: Type
+        vararg typeArguments: Type,
     ) : ParameterizedType, Serializable {
         private val ownerType: Type?
         private val rawType: Type
@@ -24,8 +25,7 @@ open class TypeToken<T> protected constructor() {
         init {
             // require an owner type if the raw type needs it
             if (rawType is Class<*>) {
-                val isStaticOrTopLevelClass =
-                    Modifier.isStatic(rawType.modifiers) || rawType.enclosingClass == null
+                val isStaticOrTopLevelClass = Modifier.isStatic(rawType.modifiers) || rawType.enclosingClass == null
                 checkArgument(ownerType != null || isStaticOrTopLevelClass)
             }
 
@@ -65,8 +65,7 @@ open class TypeToken<T> protected constructor() {
         override fun toString() = typeToString(componentType) + "[]"
     }
 
-    private class WildcardTypeImpl(upperBounds: Array<Type>, lowerBounds: Array<Type>) :
-        WildcardType, Serializable {
+    private class WildcardTypeImpl(upperBounds: Array<Type>, lowerBounds: Array<Type>) : WildcardType, Serializable {
         private val upperBound: Type
         private val lowerBound: Type?
 
@@ -91,8 +90,7 @@ open class TypeToken<T> protected constructor() {
 
         override fun getUpperBounds() = arrayOf(upperBound)
 
-        override fun getLowerBounds() =
-            if (lowerBound != null) arrayOf(lowerBound) else EMPTY_TYPE_ARRAY
+        override fun getLowerBounds() = if (lowerBound != null) arrayOf(lowerBound) else EMPTY_TYPE_ARRAY
 
         override fun toString(): String = when {
             lowerBound != null -> "? super " + typeToString(lowerBound)
@@ -102,12 +100,12 @@ open class TypeToken<T> protected constructor() {
     }
 
     companion object {
-
-        val UNIT_TYPE = object : TypeToken<Unit>() {}.type
+        //性能要优于kotlin提供的 typeOf()函数
+        @PublishedApi
+        @JvmStatic
+        internal inline fun <reified T> typeOf() = object : TypeToken<T>() {}
 
         internal val EMPTY_TYPE_ARRAY = arrayOf<Type>()
-
-        internal val SET_STRING_TYPE by lazy { object : TypeToken<Set<String>>() {}.type.toString() }
 
         internal fun canonicalize(type: Type): Type = if (type is Class<*>) {
             if (type.isArray) GenericArrayTypeImpl(canonicalize(type.componentType!!)) else type
@@ -129,8 +127,7 @@ open class TypeToken<T> protected constructor() {
             checkArgument(type !is Class<*> || !type.isPrimitive)
         }
 
-        internal fun <T> checkNotNull(obj: T?): T =
-            if (obj != null) obj else throw NullPointerException()
+        internal fun <T> checkNotNull(obj: T?): T = if (obj != null) obj else throw NullPointerException()
 
         internal fun checkArgument(condition: Boolean) {
             if (!condition) throw IllegalArgumentException()

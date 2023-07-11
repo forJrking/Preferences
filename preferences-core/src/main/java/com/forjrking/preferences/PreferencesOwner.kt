@@ -5,10 +5,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.forjrking.preferences.bindings.Enhance
 import com.forjrking.preferences.bindings.PreferenceFieldBinder
-import com.forjrking.preferences.bindings.type
 import com.forjrking.preferences.cache.AtomicCache
 import com.forjrking.preferences.provide.createSharedPreferences
 import com.forjrking.preferences.serialize.Serializer
+import com.forjrking.preferences.serialize.TypeToken.Companion.typeOf
 import kotlin.properties.Delegates.notNull
 import kotlin.properties.Delegates.vetoable
 import kotlin.properties.ReadWriteProperty
@@ -46,12 +46,18 @@ open class PreferencesOwner(
      * @param default 默认值
      * @param key 自定义key
      * @param caching 缓存开关
+     * sp需要序列化时候传递 type
+     *  val KClass<*>.isBasic
+     *      get() = when (this) {
+     *          Int::class, Float::class, Long::class, Boolean::class, String::class -> true
+     *          else -> false
+     *      }
      * */
     protected inline fun <reified T> preferenceBinding(
         default: T, key: String? = null, caching: Boolean = !isMultiProcess
     ): ReadWriteProperty<PreferencesOwner, T> = PreferenceFieldBinder(
         clazz = T::class,
-        type = type<T>(),
+        type = typeOf<T>().javaType,
         default = default,
         key = key,
         cache = AtomicCache(caching)
@@ -61,7 +67,7 @@ open class PreferencesOwner(
         key: String? = null, caching: Boolean = !isMultiProcess
     ): ReadWriteProperty<PreferencesOwner, T?> = PreferenceFieldBinder(
         clazz = T::class,
-        type = type<T>(),
+        type = typeOf<T>().javaType,
         default = null,
         key = key,
         cache = AtomicCache(caching)

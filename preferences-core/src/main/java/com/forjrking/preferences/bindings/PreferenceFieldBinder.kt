@@ -7,7 +7,8 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-class PreferenceFieldBinder<T>(
+@PublishedApi
+internal class PreferenceFieldBinder<T>(
     private val clazz: KClass<*>,
     private val type: Type,
     private val default: T,
