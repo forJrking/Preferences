@@ -51,6 +51,10 @@ android {
     }
 }
 
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
 dependencies {
     implementation(libs.gson)
     implementation(libs.mmkv)

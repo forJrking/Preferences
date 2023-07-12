@@ -2,6 +2,7 @@ package com.forjrking.preferences.extensions
 
 import android.content.SharedPreferences
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.anyOrNull
@@ -49,24 +50,26 @@ internal class EditorExtKtKtTest {
     @Test
     fun getValue() {
         var value = mockSP.getValue(Int::class, UNIT_TYPE, key, 0)
-       assertEquals(1, value)
+        assertEquals(1, value)
         value = mockSP.getValue(Float::class, UNIT_TYPE, key, 0F)
-       assertEquals(1F, value)
+        assertEquals(1F, value)
         value = mockSP.getValue(Long::class, UNIT_TYPE, key, 0L)
-       assertEquals(1L, value)
+        assertEquals(1L, value)
         value = mockSP.getValue(String::class, UNIT_TYPE, key, null)
-       assertEquals("ABC", value)
+        assertEquals("ABC", value)
     }
 
     @Test
     fun getValueObj() {
         val value = mockSP.getValue(Set::class, typeOf<Set<String>>().javaType, key, null)
-       assertEquals(null, value)
+        assertEquals(null, value)
     }
 
     @Test
     fun `getValueObj not support`() {
-        val value = mockSP.getValue(Set::class, typeOf<Set<Long>>().javaType, key, null)
-       assertEquals(null, value)
+        assertThrows(IllegalStateException::class.java) {
+            val value = mockSP.getValue(Set::class, typeOf<Set<Long>>().javaType, key, null)
+            assertEquals(null, value)
+        }
     }
 }

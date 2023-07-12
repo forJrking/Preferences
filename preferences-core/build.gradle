@@ -49,6 +49,10 @@ dependencies {
     testImplementation libs.mockito.kotlin
 }
 
+tasks.withType(Test) {
+    useJUnitPlatform()
+}
+
 afterEvaluate {
     publishing {
         publications {
