@@ -15,7 +15,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "preferences"
 include(":app")
 include(":preferences-core")
 include(":preferences-gson")

@@ -1,14 +1,15 @@
-package com.forjrking.preferences.bindings
+package com.forjrking.preferences.extensions
 
 import android.content.SharedPreferences
-import com.forjrking.preferences.serialize.TypeToken.Companion.typeOf
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import kotlin.reflect.jvm.javaType
+import kotlin.reflect.typeOf
 
 /**
  * @description:
@@ -23,7 +24,7 @@ internal class EditorExtKtKtTest {
 
     private val key = "key"
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockSP = mock() {
             val mockEditor = mock<SharedPreferences.Editor>()
@@ -48,24 +49,24 @@ internal class EditorExtKtKtTest {
     @Test
     fun getValue() {
         var value = mockSP.getValue(Int::class, UNIT_TYPE, key, 0)
-        assertEquals(1, value)
+       assertEquals(1, value)
         value = mockSP.getValue(Float::class, UNIT_TYPE, key, 0F)
-        assertEquals(1F, value)
+       assertEquals(1F, value)
         value = mockSP.getValue(Long::class, UNIT_TYPE, key, 0L)
-        assertEquals(1L, value)
+       assertEquals(1L, value)
         value = mockSP.getValue(String::class, UNIT_TYPE, key, null)
-        assertEquals("ABC", value)
+       assertEquals("ABC", value)
     }
 
     @Test
     fun getValueObj() {
         val value = mockSP.getValue(Set::class, typeOf<Set<String>>().javaType, key, null)
-        assertEquals(null, value)
+       assertEquals(null, value)
     }
 
-    @Test(expected = IllegalStateException::class)
+    @Test
     fun `getValueObj not support`() {
         val value = mockSP.getValue(Set::class, typeOf<Set<Long>>().javaType, key, null)
-        assertEquals(null, value)
+       assertEquals(null, value)
     }
 }

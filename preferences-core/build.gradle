@@ -44,7 +44,8 @@ dependencies {
     implementation libs.kotlin.reflect
     compileOnly libs.mmkv
     compileOnly libs.androidx.security
-    testImplementation libs.junit4
+    testImplementation libs.junit5
+    testRuntimeOnly libs.junit.engine
     testImplementation libs.mockito.kotlin
 }
 

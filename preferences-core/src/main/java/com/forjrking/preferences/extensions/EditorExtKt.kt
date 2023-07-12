@@ -1,14 +1,12 @@
 @file:Suppress("UNCHECKED_CAST")
 
-package com.forjrking.preferences.bindings
+package com.forjrking.preferences.extensions
 
 import android.content.SharedPreferences
 import com.forjrking.preferences.PreferencesOwner.Companion.serializer
-import com.forjrking.preferences.serialize.TypeToken.Companion.typeOf
 import java.lang.reflect.Type
 import kotlin.reflect.KClass
 
-private val TYPE_SET_STRING by lazy { typeOf<Set<String>>().javaType.toString() }
 
 internal fun SharedPreferences.Editor.putValue(
     clazz: KClass<*>, type: Type, key: String, value: Any?

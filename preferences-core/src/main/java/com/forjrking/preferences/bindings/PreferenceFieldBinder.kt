@@ -2,6 +2,9 @@ package com.forjrking.preferences.bindings
 
 import com.forjrking.preferences.PreferencesOwner
 import com.forjrking.preferences.cache.Cache
+import com.forjrking.preferences.extensions.defaultValue
+import com.forjrking.preferences.extensions.getValue
+import com.forjrking.preferences.extensions.putValue
 import java.lang.reflect.Type
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
@@ -14,7 +17,7 @@ internal class PreferenceFieldBinder<T>(
     private val default: T,
     private val key: String?,
     private val cache: Cache<T>
-) : ReadWriteProperty<PreferencesOwner, T>, Enhance {
+) : ReadWriteProperty<PreferencesOwner, T>, Clearable {
 
     override fun key(property: KProperty<*>) = key ?: "${property.name}Key"
 

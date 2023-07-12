@@ -1,9 +1,9 @@
 package com.forjrking.preferences
 
-import com.forjrking.preferences.serialize.TypeToken
-import org.junit.Assert.assertNotNull
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
+import kotlin.reflect.javaType
 import kotlin.reflect.typeOf
 import kotlin.system.measureTimeMillis
 
@@ -21,27 +21,20 @@ val KClass<*>.isBasic
 /**
  * sp需要序列化时候传递 type
  */
+@OptIn(ExperimentalStdlibApi::class)
 inline fun <reified T> type() =
-    if (T::class.isBasic) object : TypeToken<Unit>() {}.javaType else object : TypeToken<T>() {}.javaType
+    if (T::class.isBasic) typeOf<Unit>().javaType else typeOf<T>().javaType
 
 class ExampleUnitTest {
+    @OptIn(ExperimentalStdlibApi::class)
     @Test
     fun addition_isCorrect() {
-        val writeTimeMillis = measureTimeMillis {
-            repeat(1000) {
-                assertNotNull(type<Set<String>>())
-            }
-        }
-        val writeTimeMillis2 = measureTimeMillis {
-            repeat(1000) {
-                assertNotNull(object : TypeToken<Set<String>>() {}.javaType)
-            }
-        }
+
         val writeTimeMillis3 = measureTimeMillis {
             repeat(1000) {
-                assertNotNull(typeOf<Set<String>>())
+                assertNotNull(typeOf<Set<String>>().javaType)
             }
         }
-        println("Time1: $writeTimeMillis Time2: $writeTimeMillis2 Time3: $writeTimeMillis3")
+        println("Time3: $writeTimeMillis3")
     }
 }

@@ -3,18 +3,19 @@ package com.forjrking.preferences
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import com.forjrking.preferences.bindings.Enhance
+import com.forjrking.preferences.bindings.Clearable
 import com.forjrking.preferences.bindings.PreferenceFieldBinder
 import com.forjrking.preferences.cache.AtomicCache
 import com.forjrking.preferences.provide.createSharedPreferences
 import com.forjrking.preferences.serialize.Serializer
-import com.forjrking.preferences.serialize.TypeToken.Companion.typeOf
 import kotlin.properties.Delegates.notNull
 import kotlin.properties.Delegates.vetoable
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.jvm.javaType
+import kotlin.reflect.typeOf
 
 /**
  * SharedPreferences使用可以配合mmkv 当出现获取值始终不是期望的时候,请优先考虑关闭缓存.
@@ -106,13 +107,13 @@ open class PreferencesOwner(
         }
     }
 
-    private fun forEachDelegate(onEach: (Enhance, KProperty1<PreferencesOwner, *>) -> Unit) {
+    private fun forEachDelegate(onEach: (Clearable, KProperty1<PreferencesOwner, *>) -> Unit) {
         val properties = this::class.declaredMemberProperties.filterIsInstance<KProperty1<PreferencesOwner, *>>()
         for (p in properties) {
             val prevAccessible = p.isAccessible
             if (!prevAccessible) p.isAccessible = true
             val delegate = p.getDelegate(this)
-            if (delegate is Enhance) onEach(delegate, p)
+            if (delegate is Clearable) onEach(delegate, p)
             p.isAccessible = prevAccessible
         }
     }

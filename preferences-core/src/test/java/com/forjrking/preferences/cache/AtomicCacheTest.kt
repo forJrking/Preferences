@@ -1,9 +1,9 @@
 package com.forjrking.preferences.cache
 
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertTrue
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 
 /**
@@ -15,7 +15,7 @@ internal class AtomicCacheTest {
 
     private var flag: Int = 0
 
-    @Before
+    @BeforeEach
     fun setUp() {
         flag = 0
     }

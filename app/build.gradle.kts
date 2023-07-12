@@ -64,7 +64,8 @@ dependencies {
     debugImplementation(project("path" to ":preferences-ktx"))
     releaseImplementation(libs.bundles.pref)
     implementation("com.github.forJrking:StartActivity4Rt:1.0.0")
-    testImplementation(libs.junit4)
+    testImplementation(libs.junit5)
+    testRuntimeOnly(libs.junit.engine)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.androidx.junit)
 }
